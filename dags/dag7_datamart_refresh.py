@@ -120,11 +120,7 @@ with DAG(
         DROP MATERIALIZED VIEW IF EXISTS datamart.dm_kondisi_kebun_old;
     """
     
-    task_dm_kondisi_kebun = PostgresOperator(
-        task_id="task_dm_kondisi_kebun",
-        postgres_conn_id="postgis_dwh",
-        sql=sql_dm_kondisi_kebun,
-    )
+    # SQL Statement untuk DM 1 (sudah didefinisikan di atas)
 
     # ─────────────────────────────────────────────────────────────
     # DATAMART 2: GAP PRODUKSI & CLUSTER
@@ -178,11 +174,7 @@ with DAG(
         DROP MATERIALIZED VIEW IF EXISTS datamart.dm_gap_produksi_old;
     """
     
-    task_dm_gap_produksi = PostgresOperator(
-        task_id="task_dm_gap_produksi",
-        postgres_conn_id="postgis_dwh",
-        sql=sql_dm_gap_produksi,
-    )
+    # SQL Statement untuk DM 2 (sudah didefinisikan di atas)
 
     # ─────────────────────────────────────────────────────────────
     # DATAMART 3: DETEKSI PENIMBUNAN
@@ -235,11 +227,7 @@ with DAG(
         DROP MATERIALIZED VIEW IF EXISTS datamart.dm_deteksi_penimbunan_old;
     """
     
-    task_dm_deteksi_penimbunan = PostgresOperator(
-        task_id="task_dm_deteksi_penimbunan",
-        postgres_conn_id="postgis_dwh",
-        sql=sql_dm_deteksi_penimbunan,
-    )
+    # SQL Statement untuk DM 3 (sudah didefinisikan di atas)
 
     # ─────────────────────────────────────────────────────────────
     # DATAMART 4: REALISASI VS TARGET PANEN
@@ -296,59 +284,75 @@ with DAG(
         DROP MATERIALIZED VIEW IF EXISTS datamart.dm_realisasi_panen_old;
     """
     
-    task_dm_realisasi_panen = PostgresOperator(
-        task_id="task_dm_realisasi_panen",
-        postgres_conn_id="postgis_dwh",
-        sql=sql_dm_realisasi_panen,
-    )
+    # SQL Statement untuk DM 4 (sudah didefinisikan di atas)
 
     # ─────────────────────────────────────────────────────────────
-    # EXTERNAL TASK SENSORS (Dependency Forgiving)
+    # DEFINISI GRAPH & TASK GROUPS
     # ─────────────────────────────────────────────────────────────
     
-    t_sensor_4 = PythonSensor(
-        task_id          = "wait_for_dag6_analitik",
-        python_callable  = _check_latest_run,
-        op_kwargs        = {"external_dag_id": "dag6_analitik"},
-        mode             = "reschedule",
-        poke_interval    = SENSOR_POKE_INTERVAL,
-        timeout          = SENSOR_TIMEOUT_SECONDS,
-        soft_fail        = False,
-        on_failure_callback = _on_sensor_timeout,
-    )
+    from airflow.utils.task_group import TaskGroup
 
-    t_sensor_5 = PythonSensor(
-        task_id          = "wait_for_dag4_panen",
-        python_callable  = _check_latest_run,
-        op_kwargs        = {"external_dag_id": "dag4_panen_etl"},
-        mode             = "reschedule",
-        poke_interval    = SENSOR_POKE_INTERVAL,
-        timeout          = SENSOR_TIMEOUT_SECONDS,
-        soft_fail        = False,
-        on_failure_callback = _on_sensor_timeout,
-    )
+    with TaskGroup("upstream_sensors", tooltip="Tunggu DAG ETL & Analitik Selesai") as tg_sensors:
+        t_sensor_4 = PythonSensor(
+            task_id          = "wait_for_dag6_analitik",
+            python_callable  = _check_latest_run,
+            op_kwargs        = {"external_dag_id": "dag6_analitik"},
+            mode             = "reschedule",
+            poke_interval    = SENSOR_POKE_INTERVAL,
+            timeout          = SENSOR_TIMEOUT_SECONDS,
+            soft_fail        = False,
+            on_failure_callback = _on_sensor_timeout,
+        )
 
-    t_sensor_6 = PythonSensor(
-        task_id          = "wait_for_dag5_alert",
-        python_callable  = _check_latest_run,
-        op_kwargs        = {"external_dag_id": "dag5_alert_etl"},
-        mode             = "reschedule",
-        poke_interval    = SENSOR_POKE_INTERVAL,
-        timeout          = SENSOR_TIMEOUT_SECONDS,
-        soft_fail        = False,
-        on_failure_callback = _on_sensor_timeout,
-    )
+        t_sensor_5 = PythonSensor(
+            task_id          = "wait_for_dag3_panen",
+            python_callable  = _check_latest_run,
+            op_kwargs        = {"external_dag_id": "dag3_panen_etl"},
+            mode             = "reschedule",
+            poke_interval    = SENSOR_POKE_INTERVAL,
+            timeout          = SENSOR_TIMEOUT_SECONDS,
+            soft_fail        = False,
+            on_failure_callback = _on_sensor_timeout,
+        )
+
+        t_sensor_6 = PythonSensor(
+            task_id          = "wait_for_dag5_alert",
+            python_callable  = _check_latest_run,
+            op_kwargs        = {"external_dag_id": "dag5_alert_etl"},
+            mode             = "reschedule",
+            poke_interval    = SENSOR_POKE_INTERVAL,
+            timeout          = SENSOR_TIMEOUT_SECONDS,
+            soft_fail        = False,
+            on_failure_callback = _on_sensor_timeout,
+        )
+
+    with TaskGroup("refresh_mviews", tooltip="Refresh Semua Materialized Views Secara Paralel") as tg_mviews:
+        task_dm_kondisi_kebun = PostgresOperator(
+            task_id="task_dm_kondisi_kebun",
+            postgres_conn_id="postgis_dwh",
+            sql=sql_dm_kondisi_kebun,
+        )
+
+        task_dm_gap_produksi = PostgresOperator(
+            task_id="task_dm_gap_produksi",
+            postgres_conn_id="postgis_dwh",
+            sql=sql_dm_gap_produksi,
+        )
+
+        task_dm_deteksi_penimbunan = PostgresOperator(
+            task_id="task_dm_deteksi_penimbunan",
+            postgres_conn_id="postgis_dwh",
+            sql=sql_dm_deteksi_penimbunan,
+        )
+
+        task_dm_realisasi_panen = PostgresOperator(
+            task_id="task_dm_realisasi_panen",
+            postgres_conn_id="postgis_dwh",
+            sql=sql_dm_realisasi_panen,
+        )
 
     # ─────────────────────────────────────────────────────────────
     # ALUR DEPENDENSI
     # ─────────────────────────────────────────────────────────────
     
-    # Tunggu ketiga DAG di atas selesai, baru inisialisasi Datamart
-    [t_sensor_4, t_sensor_5, t_sensor_6] >> init_schema
-    
-    init_schema >> [
-        task_dm_kondisi_kebun,
-        task_dm_gap_produksi,
-        task_dm_deteksi_penimbunan,
-        task_dm_realisasi_panen
-    ]
+    tg_sensors >> init_schema >> tg_mviews

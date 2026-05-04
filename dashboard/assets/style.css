@@ -1,0 +1,266 @@
+/* ═══════════════════════════════════════════════════════════
+   Sawit Riau Dashboard — Global Styles
+   Tema: Light Professional, Hijau Elegan
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary:      #2D6A4F;
+    --primary-dark: #1B4332;
+    --accent:       #52B788;
+    --accent-light: #B7E4C7;
+    --bg:           #F4F7F5;
+    --card-bg:      #FFFFFF;
+    --text:         #1B2D2A;
+    --text-muted:   #6B8F7E;
+    --border:       #D8EAE2;
+    --danger:       #D62839;
+    --warning:      #F4A261;
+    --info:         #4895EF;
+    --sidebar-w:    260px;
+    --shadow:       0 2px 12px rgba(45,106,79,0.08);
+    --radius:       10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, html {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--primary-dark);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.12);
+}
+
+.sidebar-logo {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.sidebar-logo h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent-light);
+    letter-spacing: 0.3px;
+}
+
+.sidebar-logo small {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+}
+
+.sidebar-section-label {
+    padding: 16px 20px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 400;
+    border-left: 3px solid transparent;
+    transition: all 0.18s ease;
+}
+
+.sidebar a:hover {
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+    border-left-color: var(--accent);
+}
+
+.sidebar a.active {
+    background: rgba(82,183,136,0.18);
+    color: var(--accent-light);
+    border-left-color: var(--accent);
+    font-weight: 600;
+}
+
+/* ─── MAIN CONTENT ────────────────────────────────────────── */
+.main-content {
+    margin-left: var(--sidebar-w);
+    padding: 28px 32px;
+    min-height: 100vh;
+}
+
+.page-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.page-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.page-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* ─── KPI CARDS ───────────────────────────────────────────── */
+.kpi-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--accent);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45,106,79,0.14);
+}
+
+.kpi-card .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.2;
+}
+
+.kpi-card .kpi-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-card.danger  { border-left-color: var(--danger); }
+.kpi-card.warning { border-left-color: var(--warning); }
+.kpi-card.info    { border-left-color: var(--info); }
+
+/* ─── CHART CARDS ─────────────────────────────────────────── */
+.chart-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px 20px 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.chart-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* ─── FILTER AREA ─────────────────────────────────────────── */
+.filter-bar {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.filter-bar label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* ─── DROPDOWN OVERRIDE ───────────────────────────────────── */
+.Select-control {
+    border-color: var(--border) !important;
+    border-radius: 6px !important;
+}
+
+.Select-control:hover { border-color: var(--accent) !important; }
+.is-focused .Select-control { border-color: var(--primary) !important; box-shadow: 0 0 0 2px rgba(45,106,79,0.15) !important; }
+
+/* ─── DATA TABLE ──────────────────────────────────────────── */
+.dash-table-container .dash-spreadsheet-container table {
+    font-size: 13px;
+}
+.dash-header { background-color: var(--primary) !important; color: #fff !important; font-weight: 600; }
+.dash-cell { border-color: var(--border) !important; }
+
+/* ─── LANDING PAGE ────────────────────────────────────────── */
+.landing-hero {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--accent) 100%);
+    border-radius: 16px;
+    padding: 48px 40px;
+    color: #fff;
+    margin-bottom: 28px;
+}
+
+.landing-hero h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.25;
+}
+
+.landing-hero p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.78);
+    margin-top: 10px;
+    max-width: 500px;
+}
+
+.btn-primary-green {
+    background: var(--accent);
+    color: var(--primary-dark);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+    margin-right: 10px;
+    transition: background 0.15s, transform 0.12s;
+}
+
+.btn-primary-green:hover {
+    background: var(--accent-light);
+    transform: translateY(-1px);
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 16px; }
+}

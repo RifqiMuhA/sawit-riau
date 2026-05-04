@@ -272,6 +272,26 @@ services:
       postgis:
         condition: service_healthy
 
+  # ── 11. Plotly Dash — Dashboard Analytics & Reporting ───────
+  #     Akses: http://localhost:8050
+  #     Modul 1: Reporting (SDM, Panen, Alert, Gambaran Sawit)
+  #     Modul 2: Analytics (NDVI Peta, K-Means, Penimbunan CPO)
+  dash_app:
+    build: ./dashboard
+    container_name: dash_app
+    ports:
+      - "8050:8050"
+    environment:
+      DWH_HOST: postgis
+      DWH_PORT: "5432"
+      DWH_USER: ${DWH_USER}
+      DWH_PASSWORD: ${DWH_PASSWORD}
+      DWH_DB: ${DWH_DB}
+    depends_on:
+      postgis:
+        condition: service_healthy
+    restart: always
+
 volumes:
   postgres_data:
   postgis_data:
