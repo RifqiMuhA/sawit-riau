@@ -274,13 +274,13 @@ default_args = {
 }
 
 with DAG(
-    dag_id      = "dag4_analitik",
+    dag_id      = "dag6_analitik",
     description = "DAG Analitik dengan ETL terpisah dan TaskGroups",
     start_date  = datetime(2023, 1, 1),
     schedule    = "@monthly",
     catchup     = False,
     default_args= default_args,
-    tags        = ["analitik", "machine_learning", "kpi"],
+    tags        = ["analytics"],
 ) as dag:
 
     # ─────────────────────────────────────────────────────────
@@ -311,11 +311,11 @@ with DAG(
         on_failure_callback = _on_sensor_timeout,
     )
 
-    # dim_periode.harga_cpo diisi DAG 3 (diperlukan oleh tg_timbun → hoarding detection)
-    wait_for_dag3 = PythonSensor(
-        task_id             = "wait_for_dag3_harga_cpo",
+    # dim_periode.harga_cpo diisi DAG 4 (diperlukan oleh tg_timbun → hoarding detection)
+    wait_for_dag4 = PythonSensor(
+        task_id             = "wait_for_dag4_harga_cpo",
         python_callable     = _check_latest_run,
-        op_kwargs           = {"external_dag_id": "dag3_harga_cpo"},
+        op_kwargs           = {"external_dag_id": "dag4_harga_cpo"},
         mode                = "reschedule",
         poke_interval       = SENSOR_POKE_INTERVAL,
         timeout             = SENSOR_TIMEOUT_SECONDS,
@@ -354,7 +354,7 @@ with DAG(
     # ─────────────────────────────────────────────────────────
 
     # Ketiga sensor berjalan paralel (tidak ada dependency antar sensor)
-    sensors = [wait_for_dag1, wait_for_dag2, wait_for_dag3]
+    sensors = [wait_for_dag1, wait_for_dag2, wait_for_dag4]
 
     # Setelah SEMUA sensor sukses, baru ketiga TaskGroup analitik berjalan paralel
     sensors >> tg_kmeans

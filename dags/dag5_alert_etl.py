@@ -165,13 +165,13 @@ default_args = {
 }
 
 with DAG(
-    dag_id      = "dag6_alert_etl",
+    dag_id      = "dag5_alert_etl",
     description = "ETL MongoDB log_alert_harian → fact_alert_operasional (agregasi bulanan per perusahaan)",
     start_date  = datetime(2023, 1, 1),
     schedule    = "@monthly",
     catchup     = False,
     default_args= default_args,
-    tags        = ["etl", "mongodb", "alert"],
+    tags        = ["etl", "alert"],
 ) as dag:
 
     t1 = PythonOperator(

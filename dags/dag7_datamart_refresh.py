@@ -59,7 +59,7 @@ with DAG(
     schedule    = "@monthly",
     catchup     = False,
     default_args= default_args,
-    tags        = ["datamart", "dashboard", "refresh"],
+    tags        = ["datamart"],
 ) as dag:
 
     # ─────────────────────────────────────────────────────────────
@@ -306,10 +306,10 @@ with DAG(
     # EXTERNAL TASK SENSORS (Dependency Forgiving)
     # ─────────────────────────────────────────────────────────────
     
-    wait_for_dag4 = PythonSensor(
-        task_id          = "wait_for_dag4",
+    t_sensor_4 = PythonSensor(
+        task_id          = "wait_for_dag6_analitik",
         python_callable  = _check_latest_run,
-        op_kwargs        = {"external_dag_id": "dag4_analitik"},
+        op_kwargs        = {"external_dag_id": "dag6_analitik"},
         mode             = "reschedule",
         poke_interval    = SENSOR_POKE_INTERVAL,
         timeout          = SENSOR_TIMEOUT_SECONDS,
@@ -317,10 +317,10 @@ with DAG(
         on_failure_callback = _on_sensor_timeout,
     )
 
-    wait_for_dag5 = PythonSensor(
-        task_id          = "wait_for_dag5",
+    t_sensor_5 = PythonSensor(
+        task_id          = "wait_for_dag4_panen",
         python_callable  = _check_latest_run,
-        op_kwargs        = {"external_dag_id": "dag5_panen_etl"},
+        op_kwargs        = {"external_dag_id": "dag4_panen_etl"},
         mode             = "reschedule",
         poke_interval    = SENSOR_POKE_INTERVAL,
         timeout          = SENSOR_TIMEOUT_SECONDS,
@@ -328,10 +328,10 @@ with DAG(
         on_failure_callback = _on_sensor_timeout,
     )
 
-    wait_for_dag6 = PythonSensor(
-        task_id          = "wait_for_dag6",
+    t_sensor_6 = PythonSensor(
+        task_id          = "wait_for_dag5_alert",
         python_callable  = _check_latest_run,
-        op_kwargs        = {"external_dag_id": "dag6_alert_etl"},
+        op_kwargs        = {"external_dag_id": "dag5_alert_etl"},
         mode             = "reschedule",
         poke_interval    = SENSOR_POKE_INTERVAL,
         timeout          = SENSOR_TIMEOUT_SECONDS,
@@ -344,7 +344,7 @@ with DAG(
     # ─────────────────────────────────────────────────────────────
     
     # Tunggu ketiga DAG di atas selesai, baru inisialisasi Datamart
-    [wait_for_dag4, wait_for_dag5, wait_for_dag6] >> init_schema
+    [t_sensor_4, t_sensor_5, t_sensor_6] >> init_schema
     
     init_schema >> [
         task_dm_kondisi_kebun,

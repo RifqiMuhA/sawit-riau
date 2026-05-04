@@ -116,7 +116,7 @@ with DAG(
     schedule    = "@monthly",
     catchup     = False,
     default_args= default_args,
-    tags        = ["backup", "archiving", "minio"],
+    tags        = ["backup"],
 ) as dag:
 
     # 1. SENSOR DEPENDENCY (Opsional, di-set untuk menunggu DAG 7 Datamart selesai)

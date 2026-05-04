@@ -166,7 +166,7 @@ with DAG(
     start_date=datetime(2023, 1, 1),
     catchup=True,
     default_args=default_args,
-    tags=["ndvi", "knn", "gee", "riau"],
+    tags=["satelit", "ndvi"],
     max_active_runs=1
 ) as dag:
     

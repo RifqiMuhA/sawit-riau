@@ -76,7 +76,7 @@ def extract_mysql_a(ti, **kwargs):
     for db in MYSQL_A_DATABASES:
         df = mysql.get_pandas_df(
             f"""
-            SELECT kebun_id, perusahaan_id, DATE_FORMAT(tanggal_mulai, '%%Y-%%m') AS periode,
+            SELECT kebun_id, perusahaan_id, DATE_FORMAT(tanggal_mulai, '%Y-%m') AS periode,
                    target_panen_ton, realisasi_panen_ton, status
             FROM `{db}`.jadwal_panen
             """
@@ -101,7 +101,7 @@ def extract_mysql_b(ti, **kwargs):
     for db in MYSQL_B_DATABASES:
         df = mysql.get_pandas_df(
             f"""
-            SELECT blok_id, id_pks, DATE_FORMAT(tgl_mulai, '%%Y-%%m') AS bulan,
+            SELECT blok_id, id_pks, DATE_FORMAT(tgl_mulai, '%Y-%m') AS bulan,
                    target_ton, realisasi_ton, status_panen
             FROM `{db}`.rencana_panen
             """
@@ -238,26 +238,31 @@ default_args = {
 }
 
 with DAG(
-    dag_id      = "dag5_panen_etl",
+    dag_id      = "dag3_panen_etl",
     description = "ETL Panen (Extract paralel -> Transform gabungan -> Load DWH)",
     start_date  = datetime(2023, 1, 1),
     schedule    = "@monthly",
     catchup     = False,
     default_args= default_args,
-    tags        = ["etl", "panen", "tujuan4"],
+    tags        = ["etl", "panen"],
 ) as dag:
 
-    # 1. TAHAP EXTRACT (PARALEL 4 DATABASE)
-    t_ext_a = PythonOperator(task_id="extract_mysql_a", python_callable=extract_mysql_a)
-    t_ext_b = PythonOperator(task_id="extract_mysql_b", python_callable=extract_mysql_b)
-    t_ext_c = PythonOperator(task_id="extract_pg_c", python_callable=extract_pg_c)
-    t_ext_d = PythonOperator(task_id="extract_pg_d", python_callable=extract_pg_d)
+    # ─────────────────────────────────────────────────────────────
+    # DEFINISI GRAPH / ALUR KERJA MENGGUNAKAN TASK GROUPS
+    # ─────────────────────────────────────────────────────────────
+    
+    from airflow.utils.task_group import TaskGroup
 
-    # 2. TAHAP TRANSFORM
-    t_transform = PythonOperator(task_id="transform_panen_data", python_callable=transform_panen_data)
+    with TaskGroup("extract_db", tooltip="Ekstraksi data panen paralel dari 4 tipe database") as tg_extract:
+        t1 = PythonOperator(task_id="extract_mysql_a", python_callable=extract_mysql_a)
+        t2 = PythonOperator(task_id="extract_mysql_b", python_callable=extract_mysql_b)
+        t3 = PythonOperator(task_id="extract_pg_c", python_callable=extract_pg_c)
+        t4 = PythonOperator(task_id="extract_pg_d", python_callable=extract_pg_d)
 
-    # 3. TAHAP LOAD
-    t_load = PythonOperator(task_id="load_fact_panen", python_callable=load_fact_panen)
+    with TaskGroup("transform_and_load", tooltip="Pembersihan data dan upsert ke DWH") as tg_tl:
+        t5 = PythonOperator(task_id="transform_panen_data", python_callable=transform_panen_data)
+        t6 = PythonOperator(task_id="load_fact_panen", python_callable=load_fact_panen)
+        t5 >> t6
 
-    # ALUR GRAFIK (Graph View)
-    [t_ext_a, t_ext_b, t_ext_c, t_ext_d] >> t_transform >> t_load
+    # Alur utama
+    tg_extract >> tg_tl

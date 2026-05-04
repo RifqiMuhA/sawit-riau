@@ -448,13 +448,13 @@ default_args = {
 }
 
 with DAG(
-    dag_id      = "dag3_harga_cpo",
-    description = "ETL harga CPO Plasma dari PDF Disbun Riau → dim_periode.harga_cpo (DWH).",
-    schedule    = "0 0 1 1 *",   # 1 Januari tiap tahun, proses PDF tahun lalu
+    dag_id      = "dag4_harga_cpo",
+    description = "Scraping Harga CPO Riau dari PDF (Batch Multi-Tahun)",
+    schedule    = "@yearly",
     start_date  = datetime(2023, 1, 1),
-    catchup     = True,
+    catchup     = False,
     default_args= default_args,
-    tags        = ["etl", "harga-cpo", "disbun", "selenium"],
+    tags        = ["etl", "selenium"],
 ) as dag:
 
     with TaskGroup("extract_group", tooltip="Download PDF dari Disbun Riau") as eg:

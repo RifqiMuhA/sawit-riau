@@ -378,8 +378,8 @@ def load_dim_kebun(**_):
     count_d = 0
     for schema in PG_D_SCHEMAS:
         df = oltp_pg.get_pandas_df(
-            f"SELECT id_kebun AS kebun_id, id_perusahaan AS perusahaan_id, nama_kebun, lokasi_kabupaten, "
-            f"area_ha AS luas_ha, planted_year AS tahun_tanam, kode_bibit AS varietas_id, status "
+            f"SELECT kebun_id, perusahaan_id, nama_kebun, lokasi_kabupaten, "
+            f"luas_ha, tahun_tanam, varietas_id, status "
             f"FROM \"{schema}\".kebun_produksi"
         )
         for _, r in df.iterrows():
@@ -675,7 +675,7 @@ with DAG(
     schedule    = "@monthly",
     catchup     = False,
     default_args= default_args,
-    tags        = ["etl", "produksi", "oltp"],
+    tags        = ["etl", "produksi"],
 ) as dag:
 
     with TaskGroup("extract_and_transform_db", tooltip="Extract and transform data from 12 OLTP Databases") as ekstraksi_db_group:
