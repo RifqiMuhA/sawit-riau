@@ -337,62 +337,101 @@ def load_ke_dwh(df: pd.DataFrame, tahun: int) -> dict:
 # TASK FUNCTIONS (Airflow)
 # ─────────────────────────────────────────────────────────────
 
-def _get_tahun(context: dict) -> int:
+def _get_tahun_list(context: dict) -> list[int]:
     conf = context.get("dag_run").conf or {}
     if "tahun" in conf:
-        return int(conf["tahun"])
-    return context["logical_date"].year - 1
+        return [int(conf["tahun"])]
+        
+    # Auto-detect semua tahun yang harga_cpo-nya masih kosong di DWH
+    tahun_list = []
+    try:
+        dwh = PostgresHook(postgres_conn_id="postgis_dwh")
+        conn = dwh.get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT DISTINCT tahun 
+            FROM dim_periode 
+            WHERE harga_cpo IS NULL 
+              AND tahun >= 2023 
+              AND tahun <= EXTRACT(YEAR FROM CURRENT_DATE) - 1
+            ORDER BY tahun
+        """)
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        
+        if rows:
+            tahun_list = [int(r[0]) for r in rows]
+            log.info("Auto-detect: Akan memproses tahun-tahun berikut secara batch: %s", tahun_list)
+            return tahun_list
+            
+    except Exception as e:
+        log.warning("Gagal auto-detect tahun kosong, fallback ke logical_date: %s", e)
+
+    return [context["logical_date"].year - 1]
 
 
 def task_download_pdf(**context) -> None:
-    tahun    = _get_tahun(context)
-    pdf_path = PDF_DIR / f"{tahun}.pdf"
-
-    if pdf_path.exists():
-        log.info("PDF sudah ada: %s — skip download.", pdf_path)
-        context["ti"].xcom_push(key="tahun", value=tahun)
+    tahun_list = _get_tahun_list(context)
+    if not tahun_list:
+        log.info("Tidak ada tahun yang perlu di-download.")
+        context["ti"].xcom_push(key="tahun_list", value=[])
         return
 
     PDF_DIR.mkdir(parents=True, exist_ok=True)
-    downloaded = download_pdfs([tahun], PDF_DIR)
-    if tahun not in downloaded:
-        raise RuntimeError(
-            f"Gagal download PDF tahun {tahun}. "
-            f"Letakkan {tahun}.pdf secara manual di folder data-pdf/ sebagai fallback."
-        )
-    context["ti"].xcom_push(key="tahun", value=tahun)
+    
+    missing_pdfs = []
+    for tahun in tahun_list:
+        if not (PDF_DIR / f"{tahun}.pdf").exists():
+            missing_pdfs.append(tahun)
+            
+    if missing_pdfs:
+        downloaded = download_pdfs(missing_pdfs, PDF_DIR)
+        for t in missing_pdfs:
+            if t not in downloaded:
+                log.warning("Gagal download PDF tahun %d.", t)
+
+    context["ti"].xcom_push(key="tahun_list", value=tahun_list)
 
 
 def task_ekstrak_cpo(**context) -> None:
-    ti    = context["ti"]
-    tahun = (ti.xcom_pull(task_ids="extract_group.download_pdf", key="tahun")
-             or ti.xcom_pull(task_ids="download_pdf", key="tahun")
-             or _get_tahun(context))
+    ti = context["ti"]
+    tahun_list = (ti.xcom_pull(task_ids="extract_group.download_pdf", key="tahun_list")
+                  or ti.xcom_pull(task_ids="download_pdf", key="tahun_list")
+                  or _get_tahun_list(context))
 
-    pdf_path = PDF_DIR / f"{tahun}.pdf"
-    if not pdf_path.exists():
-        raise FileNotFoundError(f"PDF tidak ada: {pdf_path}")
+    all_dfs = []
+    for tahun in tahun_list:
+        pdf_path = PDF_DIR / f"{tahun}.pdf"
+        if pdf_path.exists():
+            df = extract_cpo(pdf_path)
+            if not df.empty:
+                all_dfs.append(df)
+        else:
+            log.warning("PDF tidak ditemukan untuk tahun %s", tahun)
 
-    df = extract_cpo(pdf_path)
-    if df.empty:
-        raise ValueError(f"Tidak ada data CPO dari {pdf_path.name}.")
+    if not all_dfs:
+        raise ValueError("Tidak ada data CPO dari satupun PDF yang diekstrak.")
 
-    log.info("Ekstrak %d bulan untuk tahun %s", len(df), tahun)
-    ti.xcom_push(key="cpo_records", value=df.to_dict(orient="records"))
-    ti.xcom_push(key="tahun", value=tahun)
+    final_df = pd.concat(all_dfs, ignore_index=True)
+    log.info("Ekstrak %d bulan dari %d tahun.", len(final_df), len(all_dfs))
+    ti.xcom_push(key="cpo_records", value=final_df.to_dict(orient="records"))
+    ti.xcom_push(key="tahun_list", value=tahun_list)
 
 
 def task_load_ke_dwh(**context) -> None:
     ti      = context["ti"]
     records = (ti.xcom_pull(task_ids="transform_group.ekstrak_cpo_pdf", key="cpo_records")
                or ti.xcom_pull(task_ids="ekstrak_cpo_pdf", key="cpo_records"))
-    tahun   = (ti.xcom_pull(task_ids="transform_group.ekstrak_cpo_pdf", key="tahun")
-               or ti.xcom_pull(task_ids="ekstrak_cpo_pdf", key="tahun"))
+    tahun_list = (ti.xcom_pull(task_ids="transform_group.ekstrak_cpo_pdf", key="tahun_list")
+                  or ti.xcom_pull(task_ids="ekstrak_cpo_pdf", key="tahun_list"))
 
     if not records:
         raise ValueError("Tidak ada data CPO dari XCom.")
 
-    result = load_ke_dwh(pd.DataFrame(records), tahun)
+    # Representasikan proses dengan max(tahun_list) agar signature load_ke_dwh aman
+    target_tahun = max(tahun_list) if tahun_list else 0
+    result = load_ke_dwh(pd.DataFrame(records), target_tahun)
     context["ti"].xcom_push(key="ringkasan", value=result)
 
 

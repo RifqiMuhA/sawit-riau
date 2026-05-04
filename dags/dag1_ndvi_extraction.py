@@ -161,7 +161,7 @@ from airflow.utils.task_group import TaskGroup
 default_args = {"owner": "airflow", "retries": 1, "retry_delay": timedelta(minutes=1)}
 
 with DAG(
-    dag_id="dag1_ndvi_extraction_knn_silent",
+    dag_id="dag1_ndvi_extraction",
     schedule="0 0 1 * *",  # Jadwal Bulanan: berjalan pada tanggal 1 setiap bulan pukul 00:00
     start_date=datetime(2023, 1, 1),
     catchup=True,
