@@ -1,0 +1,26 @@
+# Airflow providers
+apache-airflow-providers-postgres
+apache-airflow-providers-mysql
+
+# Database drivers
+mysql-connector-python
+psycopg2-binary
+
+# Storage & Cloud
+boto3
+pymongo
+
+# GEE (DAG 1 — NDVI)
+earthengine-api
+
+# Web scraping (DAG 3 — Harga CPO Selenium)
+selenium
+pdfplumber
+requests
+beautifulsoup4
+webdriver-manager
+
+# Data processing
+scikit-learn
+openpyxl
+pandas

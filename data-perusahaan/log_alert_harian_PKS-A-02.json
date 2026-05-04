@@ -1,0 +1,1852 @@
+[
+    {
+        "_id": "ALR-20230103-PKS-A-02-58",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-01-03",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 9.68,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230109-PKS-A-02-87",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-01-09",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.48,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20230123-PKS-A-02-13",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-01-23",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 146.88,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230124-PKS-A-02-62",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-01-24",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 6.91,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230202-PKS-A-02-31",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-02-02",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 148.09,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230207-PKS-A-02-78",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-02-07",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.49,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20230214-PKS-A-02-52",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-02-14",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.49,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230219-PKS-A-02-42",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-02-19",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 3.25,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230309-PKS-A-02-81",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-03-09",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 6.31,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230318-PKS-A-02-39",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-03-18",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 7.97,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230321-PKS-A-02-76",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-03-21",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 6.14,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230324-PKS-A-02-38",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-03-24",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 146.71,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230325-PKS-A-02-75",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-03-25",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 145.13,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230326-PKS-A-02-11",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-03-26",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.57,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20230405-PKS-A-02-91",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-04-05",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 6.93,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230502-PKS-A-02-82",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-05-02",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.42,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230511-PKS-A-02-49",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-05-11",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.27,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230518-PKS-A-02-92",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-05-18",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 9.96,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230522-PKS-A-02-71",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-05-22",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 145.72,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230604-PKS-A-02-21",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-06-04",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 3.49,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230609-PKS-A-02-17",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-06-09",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 0.29,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230610-PKS-A-02-17",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-06-10",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 9.14,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230611-PKS-A-02-93",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-06-11",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 0.82,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230629-PKS-A-02-10",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-06-29",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.07,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20230703-PKS-A-02-96",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-07-03",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.66,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20230710-PKS-A-02-35",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-07-10",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.44,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230720-PKS-A-02-79",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-07-20",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.47,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230721-PKS-A-02-32",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-07-21",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 148.21,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230808-PKS-A-02-94",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-08-08",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.69,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230812-PKS-A-02-71",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-08-12",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 4.79,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230814-PKS-A-02-20",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-08-14",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 150.58,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230816-PKS-A-02-37",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-08-16",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.61,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230908-PKS-A-02-23",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-08",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 9.84,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230915-PKS-A-02-66",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-15",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 155.43,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230917-PKS-A-02-53",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-17",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 8.09,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20230919-PKS-A-02-77",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-19",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 146.36,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230921-PKS-A-02-96",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-21",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.28,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20230922-PKS-A-02-20",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-22",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 148.43,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20230926-PKS-A-02-77",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-26",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.11,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20230927-PKS-A-02-98",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-09-27",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 158.96,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20231012-PKS-A-02-75",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-10-12",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 153.66,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20231018-PKS-A-02-78",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-10-18",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.49,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20231023-PKS-A-02-91",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-10-23",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 8.15,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20231031-PKS-A-02-42",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-10-31",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 6.32,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20231102-PKS-A-02-45",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-11-02",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 159.65,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20231107-PKS-A-02-89",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-11-07",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.34,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20231109-PKS-A-02-93",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-11-09",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.45,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20231111-PKS-A-02-40",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-11-11",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 151.03,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20231213-PKS-A-02-81",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-12-13",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 1.67,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20231219-PKS-A-02-97",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-12-19",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 9.18,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20231225-PKS-A-02-97",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2023-12-25",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.21,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240101-PKS-A-02-91",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-01-01",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.82,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240109-PKS-A-02-62",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-01-09",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 4.05,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240115-PKS-A-02-83",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-01-15",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 159.87,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240119-PKS-A-02-76",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-01-19",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.68,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240124-PKS-A-02-42",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-01-24",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 7.1,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240128-PKS-A-02-78",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-01-28",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.7,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240130-PKS-A-02-76",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-01-30",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 150.51,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240205-PKS-A-02-62",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-02-05",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.54,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240212-PKS-A-02-19",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-02-12",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.16,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240228-PKS-A-02-31",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-02-28",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 1.91,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240301-PKS-A-02-70",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-03-01",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 5.55,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240303-PKS-A-02-26",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-03-03",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 1.46,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240309-PKS-A-02-82",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-03-09",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 152.17,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240311-PKS-A-02-36",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-03-11",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.83,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240320-PKS-A-02-14",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-03-20",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 147.67,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240322-PKS-A-02-54",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-03-22",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.21,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240330-PKS-A-02-74",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-03-30",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 158.41,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240406-PKS-A-02-63",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-04-06",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.73,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240407-PKS-A-02-12",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-04-07",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.07,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240419-PKS-A-02-82",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-04-19",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 8.82,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240429-PKS-A-02-74",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-04-29",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 147.29,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240504-PKS-A-02-63",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-05-04",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.52,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240506-PKS-A-02-76",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-05-06",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.29,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240520-PKS-A-02-84",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-05-20",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.17,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240523-PKS-A-02-49",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-05-23",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 1.38,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240526-PKS-A-02-11",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-05-26",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.66,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240602-PKS-A-02-53",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-06-02",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 149.74,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240622-PKS-A-02-39",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-06-22",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.78,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240625-PKS-A-02-25",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-06-25",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 9.72,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240630-PKS-A-02-75",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-06-30",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.38,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240705-PKS-A-02-49",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-07-05",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.22,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240712-PKS-A-02-29",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-07-12",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 155.39,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240714-PKS-A-02-90",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-07-14",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 4.85,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240720-PKS-A-02-21",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-07-20",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 4.47,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240726-PKS-A-02-12",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-07-26",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 0.31,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240802-PKS-A-02-89",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-08-02",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.81,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240804-PKS-A-02-99",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-08-04",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.44,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240812-PKS-A-02-19",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-08-12",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 157.1,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20240820-PKS-A-02-37",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-08-20",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 5.71,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20240903-PKS-A-02-66",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-09-03",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.56,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240911-PKS-A-02-13",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-09-11",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.39,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20240919-PKS-A-02-43",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-09-19",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 0.31,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20241017-PKS-A-02-47",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-10-17",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 5.38,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20241022-PKS-A-02-52",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-10-22",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 150.82,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20241023-PKS-A-02-18",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-10-23",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.24,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20241104-PKS-A-02-71",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-11-04",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.4,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20241124-PKS-A-02-54",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-11-24",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.47,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20241127-PKS-A-02-54",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-11-27",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 157.83,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20241201-PKS-A-02-84",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-12-01",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 8.54,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20241206-PKS-A-02-42",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-12-06",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 148.55,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20241212-PKS-A-02-23",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-12-12",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 151.61,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20241213-PKS-A-02-44",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-12-13",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 5.17,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20241218-PKS-A-02-78",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-12-18",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.89,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20241229-PKS-A-02-56",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2024-12-29",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.5,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250105-PKS-A-02-66",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-01-05",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.11,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250121-PKS-A-02-55",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-01-21",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 9.67,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250130-PKS-A-02-21",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-01-30",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 157.29,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250210-PKS-A-02-95",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-02-10",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.48,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250214-PKS-A-02-60",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-02-14",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 150.8,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250215-PKS-A-02-40",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-02-15",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 9.97,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250216-PKS-A-02-70",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-02-16",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.74,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250220-PKS-A-02-34",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-02-20",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.18,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250221-PKS-A-02-91",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-02-21",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 0.18,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250225-PKS-A-02-65",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-02-25",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 149.33,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250302-PKS-A-02-58",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-03-02",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.79,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250304-PKS-A-02-55",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-03-04",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 6.59,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250305-PKS-A-02-71",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-03-05",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 145.79,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250319-PKS-A-02-58",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-03-19",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 7.53,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250330-PKS-A-02-77",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-03-30",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 7.62,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250331-PKS-A-02-22",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-03-31",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 151.91,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250401-PKS-A-02-85",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-01",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 146.1,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250402-PKS-A-02-28",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-02",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.36,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250403-PKS-A-02-51",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-03",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 7.77,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250411-PKS-A-02-53",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-11",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 155.36,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250416-PKS-A-02-31",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-16",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 9.6,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250419-PKS-A-02-16",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-19",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.73,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250425-PKS-A-02-84",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-25",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 154.92,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250426-PKS-A-02-88",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-26",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 153.01,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250429-PKS-A-02-51",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-04-29",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 155.42,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250506-PKS-A-02-21",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-05-06",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 8.18,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250515-PKS-A-02-41",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-05-15",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 153.89,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250516-PKS-A-02-94",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-05-16",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.88,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250525-PKS-A-02-47",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-05-25",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 9.9,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250526-PKS-A-02-92",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-05-26",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 157.72,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250527-PKS-A-02-16",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-05-27",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 0.77,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250605-PKS-A-02-81",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-06-05",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.3,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250617-PKS-A-02-91",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-06-17",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 9.08,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250623-PKS-A-02-89",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-06-23",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 6.54,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250629-PKS-A-02-14",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-06-29",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 5.88,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250712-PKS-A-02-60",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-07-12",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.75,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250715-PKS-A-02-83",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-07-15",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 4.52,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250716-PKS-A-02-31",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-07-16",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.41,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250717-PKS-A-02-54",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-07-17",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.51,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250718-PKS-A-02-25",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-07-18",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 146.73,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250724-PKS-A-02-71",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-07-24",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.94,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250729-PKS-A-02-28",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-07-29",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 150.13,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250828-PKS-A-02-13",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-08-28",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 9.93,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250829-PKS-A-02-76",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-08-29",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 3.04,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250830-PKS-A-02-36",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-08-30",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 6.88,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250907-PKS-A-02-68",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-09-07",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.62,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250908-PKS-A-02-32",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-09-08",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 152.97,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20250918-PKS-A-02-65",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-09-18",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.91,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20250923-PKS-A-02-98",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-09-23",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.79,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20250925-PKS-A-02-84",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-09-25",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 6.91,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20251001-PKS-A-02-84",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-10-01",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 150.37,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20251002-PKS-A-02-53",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-10-02",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.24,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20251014-PKS-A-02-19",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-10-14",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 158.93,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20251020-PKS-A-02-34",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-10-20",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 6.82,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20251022-PKS-A-02-38",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-10-22",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 3.42,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20251028-PKS-A-02-38",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-10-28",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 159.29,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20251104-PKS-A-02-19",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-11-04",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 155.26,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20251211-PKS-A-02-52",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-12-11",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 156.21,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20251224-PKS-A-02-22",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2025-12-24",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 148.17,
+        "threshold": 140.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20260101-PKS-A-02-54",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-01-01",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.98,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260103-PKS-A-02-53",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-01-03",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.9,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20260105-PKS-A-02-85",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-01-05",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 148.0,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20260107-PKS-A-02-11",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-01-07",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 2.86,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260122-PKS-A-02-17",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-01-22",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 2.48,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260130-PKS-A-02-78",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-01-30",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 3.66,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260205-PKS-A-02-92",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-02-05",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 146.35,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20260213-PKS-A-02-85",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-02-13",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 3.84,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260215-PKS-A-02-41",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-02-15",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 8.25,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260223-PKS-A-02-87",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-02-23",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.77,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20260226-PKS-A-02-79",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-02-26",
+        "jenis_alert": "produksi_rendah",
+        "nilai_terukur": 0.16,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260302-PKS-A-02-17",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-03-02",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 158.01,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20260318-PKS-A-02-72",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-03-18",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.03,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20260327-PKS-A-02-22",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-03-27",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.01,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20260329-PKS-A-02-90",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-03-29",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 4.46,
+        "threshold": 3.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20260412-PKS-A-02-35",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-04-12",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 1.22,
+        "threshold": 0.0,
+        "status_penanganan": "belum_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260413-PKS-A-02-73",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-04-13",
+        "jenis_alert": "tekanan_boiler",
+        "nilai_terukur": 3.58,
+        "threshold": 3.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Tekanan uap berlebih"
+    },
+    {
+        "_id": "ALR-20260415-PKS-A-02-34",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-04-15",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.39,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260424-PKS-A-02-94",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-04-24",
+        "jenis_alert": "suhu_sterilizer",
+        "nilai_terukur": 154.33,
+        "threshold": 140.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Valve manual aktif"
+    },
+    {
+        "_id": "ALR-20260427-PKS-A-02-61",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-04-27",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 6.1,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    },
+    {
+        "_id": "ALR-20260428-PKS-A-02-53",
+        "perusahaan_id": "PKS-A-02",
+        "tanggal": "2026-04-28",
+        "jenis_alert": "downtime_alat",
+        "nilai_terukur": 5.18,
+        "threshold": 0.0,
+        "status_penanganan": "sudah_ditangani",
+        "catatan": "Investigasi lapangan"
+    }
+]
