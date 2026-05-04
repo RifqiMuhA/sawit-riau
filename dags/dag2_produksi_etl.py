@@ -422,6 +422,172 @@ def load_dim_kebun(**_):
     log.info("dim_kebun — total %d kebun di-upsert ke DWH", len(rows))
 
 
+def load_dim_karyawan(**_):
+    """
+    Load dim_karyawan + fact_tenaga_kerja dari semua 12 OLTP database.
+
+    Mapping nama tabel per tipe (kolom aktual dari DESCRIBE/\d):
+      A (MySQL)  : karyawan      — karyawan_id, perusahaan_id, nama, jabatan, status
+      B (MySQL)  : pegawai       — id_pegawai→id, id_pks→perusahaan_id, nama_lengkap→nama, posisi→jabatan, status_kerja→status
+      C (PgSQL)  : karyawan_c    — id(int)→karyawan_id, kode_perusahaan→perusahaan_id, nama, jabatan, aktif(bool)→status
+      D (PgSQL)  : data_karyawan — karyawan_id, perusahaan_id, nama_karyawan→nama, jabatan, status
+
+    fact_tenaga_kerja diisi dari snapshot headcount per perusahaan untuk periode bulan ini.
+    """
+    import datetime as _dt
+
+    dwh     = PostgresHook(postgres_conn_id="postgis_dwh")
+    mysql   = MySqlHook(mysql_conn_id="mysql_oltp")
+    oltp_pg = PostgresHook(postgres_conn_id="postgres_oltp")
+    rows    = []
+
+    def norm_status(val) -> str:
+        """Normalisasi berbagai format status → 'aktif' / 'non-aktif'."""
+        if val is None:
+            return "non-aktif"
+        s = str(val).lower().strip()
+        if s in ("1", "true", "aktif", "active", "ya"):
+            return "aktif"
+        return "non-aktif"
+
+    # ── Tipe A: karyawan ─────────────────────────────────────────
+    for db in MYSQL_A_DATABASES:
+        df = mysql.get_pandas_df(
+            f"SELECT karyawan_id, perusahaan_id, nama, jabatan, status "
+            f"FROM `{db}`.karyawan"
+        )
+        for _, r in df.iterrows():
+            rows.append({
+                "karyawan_id"  : r["karyawan_id"],
+                "perusahaan_id": r["perusahaan_id"],
+                "nama"         : r["nama"],
+                "jabatan"      : r.get("jabatan"),
+                "status"       : norm_status(r.get("status")),
+            })
+    log.info("dim_karyawan — MySQL A: %d karyawan", len(rows))
+
+    # ── Tipe B: pegawai ──────────────────────────────────────────
+    # Kolom aktual: id_pegawai, id_pks, nama_lengkap, posisi, status_kerja
+    count_b = 0
+    for db in MYSQL_B_DATABASES:
+        df = mysql.get_pandas_df(
+            f"SELECT id_pegawai, id_pks, nama_lengkap, posisi, status_kerja "
+            f"FROM `{db}`.pegawai"
+        )
+        for _, r in df.iterrows():
+            rows.append({
+                "karyawan_id"  : r["id_pegawai"],
+                "perusahaan_id": r["id_pks"],
+                "nama"         : r["nama_lengkap"],
+                "jabatan"      : r.get("posisi"),
+                "status"       : norm_status(r.get("status_kerja")),
+            })
+            count_b += 1
+    log.info("dim_karyawan — MySQL B: %d karyawan", count_b)
+
+    # ── Tipe C: karyawan_c ───────────────────────────────────────
+    # Kolom aktual: id (integer), kode_perusahaan, nama, jabatan, aktif (boolean)
+    # id di-prefix schema untuk menghindari collision antar schema
+    count_c = 0
+    for schema in PG_C_SCHEMAS:
+        df = oltp_pg.get_pandas_df(
+            f'SELECT id, kode_perusahaan, nama, jabatan, aktif '
+            f'FROM "{schema}".karyawan_c'
+        )
+        for _, r in df.iterrows():
+            rows.append({
+                "karyawan_id"  : f"{schema}-{r['id']}",  # prefix schema agar unik
+                "perusahaan_id": r["kode_perusahaan"],
+                "nama"         : r["nama"],
+                "jabatan"      : r.get("jabatan"),
+                "status"       : norm_status(r.get("aktif")),
+            })
+            count_c += 1
+    log.info("dim_karyawan — PG C: %d karyawan", count_c)
+
+    # ── Tipe D: data_karyawan ────────────────────────────────────
+    # Kolom aktual: karyawan_id, perusahaan_id, nama_karyawan, jabatan, status
+    count_d = 0
+    for schema in PG_D_SCHEMAS:
+        df = oltp_pg.get_pandas_df(
+            f'SELECT karyawan_id, perusahaan_id, nama_karyawan, jabatan, status '
+            f'FROM "{schema}".data_karyawan'
+        )
+        for _, r in df.iterrows():
+            rows.append({
+                "karyawan_id"  : r["karyawan_id"],
+                "perusahaan_id": r["perusahaan_id"],
+                "nama"         : r["nama_karyawan"],
+                "jabatan"      : r.get("jabatan"),
+                "status"       : norm_status(r.get("status")),
+            })
+            count_d += 1
+    log.info("dim_karyawan — PG D: %d karyawan", count_d)
+
+    if not rows:
+        log.warning("Tidak ada data karyawan yang ditemukan")
+        return
+
+    # ── Upsert ke dim_karyawan ───────────────────────────────────
+    sql_karyawan = """
+        INSERT INTO dim_karyawan (karyawan_id, perusahaan_id, nama, jabatan, status)
+        VALUES (%(karyawan_id)s, %(perusahaan_id)s, %(nama)s, %(jabatan)s, %(status)s)
+        ON CONFLICT (karyawan_id) DO UPDATE SET
+            nama    = EXCLUDED.nama,
+            jabatan = EXCLUDED.jabatan,
+            status  = EXCLUDED.status
+    """
+    conn = dwh.get_conn()
+    cur  = conn.cursor()
+    cur.executemany(sql_karyawan, rows)
+    conn.commit()
+    log.info("dim_karyawan — total %d karyawan di-upsert ke DWH", len(rows))
+
+    # ── Hitung headcount & upsert fact_tenaga_kerja ──────────────
+    # Snapshot per periode bulan ini (OLTP tidak menyimpan histori headcount)
+    periode_now = _dt.date.today().strftime("%Y-%m")
+    df_all      = pd.DataFrame(rows)
+
+    headcount = (
+        df_all.groupby("perusahaan_id")
+        .apply(lambda g: pd.Series({
+            "total_karyawan"    : len(g),
+            "karyawan_aktif"    : (g["status"] == "aktif").sum(),
+            "karyawan_non_aktif": (g["status"] == "non-aktif").sum(),
+        }))
+        .reset_index()
+    )
+
+    sql_tenaga = """
+        INSERT INTO fact_tenaga_kerja
+            (perusahaan_id, periode, total_karyawan, karyawan_aktif, karyawan_non_aktif)
+        VALUES (%(perusahaan_id)s, %(periode)s, %(total_karyawan)s,
+                %(karyawan_aktif)s, %(karyawan_non_aktif)s)
+        ON CONFLICT (perusahaan_id, periode) DO UPDATE SET
+            total_karyawan     = EXCLUDED.total_karyawan,
+            karyawan_aktif     = EXCLUDED.karyawan_aktif,
+            karyawan_non_aktif = EXCLUDED.karyawan_non_aktif
+    """
+    tenaga_rows = [
+        {
+            "perusahaan_id"    : row["perusahaan_id"],
+            "periode"          : periode_now,
+            "total_karyawan"   : int(row["total_karyawan"]),
+            "karyawan_aktif"   : int(row["karyawan_aktif"]),
+            "karyawan_non_aktif": int(row["karyawan_non_aktif"]),
+        }
+        for _, row in headcount.iterrows()
+    ]
+    cur.executemany(sql_tenaga, tenaga_rows)
+    conn.commit()
+    cur.close()
+    conn.close()
+    log.info(
+        "fact_tenaga_kerja — %d perusahaan di-upsert untuk periode %s",
+        len(tenaga_rows), periode_now
+    )
+
+
 def etl_excel(**_):
     """
     Baca 12 file Excel PKS dan load ke fact_produksi.
@@ -539,11 +705,18 @@ with DAG(
     )
 
     t_load_dwh = PythonOperator(
-        task_id         = "load_dwh",
+        task_id         = "load_dim_kebun",
         python_callable = load_dim_kebun,
     )
 
-    # 1. Parallel DB extraction
-    # 2. Merge Excel data (overwrites/completes DB data)
-    # 3. Load kebun dimensions
-    ekstraksi_db_group >> t_excel >> t_load_dwh
+    t_karyawan = PythonOperator(
+        task_id         = "load_dim_karyawan_dan_fact_tenaga_kerja",
+        python_callable = load_dim_karyawan,
+    )
+
+    # Alur dependency:
+    # 1. Parallel DB extraction (semua 12 OLTP serentak)
+    # 2. Excel PKS (setelah DB selesai, untuk data pelengkap)
+    # 3. Load dim_kebun (basis untuk fact_panen di DAG 5)
+    # 4. Load dim_karyawan + fact_tenaga_kerja (paralel setelah dim_kebun siap)
+    ekstraksi_db_group >> t_excel >> t_load_dwh >> t_karyawan

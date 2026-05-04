@@ -135,9 +135,9 @@ def task_load_dwh(**context) -> None:
     
     for r in transformed_data:
         if r['ndvi_mean'] is not None:
-            # Upsert Dim Waktu
+            # Upsert Dim Periode
             db_cur.execute("""
-                INSERT INTO dim_waktu (periode, tahun, bulan, kuartal) 
+                INSERT INTO dim_periode (periode, tahun, bulan, kuartal) 
                 VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING
             """, (periode, exec_date.year, exec_date.month, (exec_date.month-1)//3 + 1))
             

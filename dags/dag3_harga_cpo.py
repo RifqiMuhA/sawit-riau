@@ -1,11 +1,13 @@
 """
-DAG 3 — Harga CPO Disbun: Download PDF + Ekstrak + Load → fact_harga_cpo (DWH)
-================================================================================
+DAG 3 — Harga CPO Disbun: Download PDF + Ekstrak + Update → dim_periode.harga_cpo (DWH)
+======================================================================================
 Adaptasi dari etl_cpo_data.py (referensi teman, sudah teruji).
 
 Sumber  : PDF laporan tahunan Dinas Perkebunan Provinsi Riau
           https://disbun.riau.go.id/rekap_harga_tbs
-Target  : fact_harga_cpo & dim_waktu di sawit_dwh (PostGIS)
+Target  : dim_periode.harga_cpo di sawit_dwh (PostGIS)
+          harga_cpo adalah atribut periodik — disimpan langsung di dim_periode,
+          bukan fact table terpisah (fact_harga_cpo sudah dihapus dari schema).
 Jadwal  : 1 Januari tiap tahun (proses PDF tahun sebelumnya)
           Trigger manual: conf {"tahun": 2023}
 
@@ -309,25 +311,25 @@ def load_ke_dwh(df: pd.DataFrame, tahun: int) -> dict:
         periode = f"{int(rec['tahun'])}-{int(rec['bulan']):02d}"
         harga   = rec["harga_cpo"]
 
+        # Pastikan periode sudah ada di dim_periode (seed sudah di-generate sampai 2030)
         cur.execute("""
-            INSERT INTO dim_waktu (periode, tahun, bulan, kuartal)
+            INSERT INTO dim_periode (periode, tahun, bulan, kuartal)
             VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING
         """, (periode, int(rec["tahun"]), int(rec["bulan"]),
               (int(rec["bulan"]) - 1) // 3 + 1))
 
+        # Update kolom harga_cpo langsung di dim_periode
         cur.execute("""
-            INSERT INTO fact_harga_cpo (periode, harga_cpo)
-            VALUES (%s, %s)
-            ON CONFLICT (periode) DO UPDATE SET harga_cpo = EXCLUDED.harga_cpo
-        """, (periode, harga))
+            UPDATE dim_periode SET harga_cpo = %s WHERE periode = %s
+        """, (harga, periode))
 
-        log.info("Upsert %s → Rp %,.2f", periode, harga)
+        log.info("Update dim_periode %s → Rp %,.2f", periode, harga)
         loaded += 1
 
     conn.commit()
     cur.close()
     conn.close()
-    log.info("✅ %d periode di-load ke fact_harga_cpo (tahun %d)", loaded, tahun)
+    log.info("✅ %d periode di-update harga_cpo di dim_periode (tahun %d)", loaded, tahun)
     return {"tahun": tahun, "loaded": loaded}
 
 
@@ -408,7 +410,7 @@ default_args = {
 
 with DAG(
     dag_id      = "dag3_harga_cpo",
-    description = "ETL harga CPO Plasma dari PDF Disbun Riau → fact_harga_cpo DWH.",
+    description = "ETL harga CPO Plasma dari PDF Disbun Riau → dim_periode.harga_cpo (DWH).",
     schedule    = "0 0 1 1 *",   # 1 Januari tiap tahun, proses PDF tahun lalu
     start_date  = datetime(2023, 1, 1),
     catchup     = True,
@@ -428,7 +430,7 @@ with DAG(
             python_callable = task_ekstrak_cpo,
         )
 
-    with TaskGroup("load_group", tooltip="Load ke DWH fact_harga_cpo") as lg:
+    with TaskGroup("load_group", tooltip="Update harga_cpo di dim_periode") as lg:
         t_load = PythonOperator(
             task_id         = "load_ke_dwh",
             python_callable = task_load_ke_dwh,

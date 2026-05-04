@@ -90,7 +90,7 @@ with DAG(
             NOW() AS last_refreshed
         FROM fact_ndvi f
         JOIN dim_kabupaten k ON f.kode_wilayah = k.kode_wilayah
-        JOIN dim_waktu w ON f.periode = w.periode;
+        JOIN dim_periode w ON f.periode = w.periode;
 
         -- 2. Buat index di versi baru SEBELUM swap
         CREATE UNIQUE INDEX idx_dm_kondisi_grain_{{ ts_nodash }} 
@@ -148,7 +148,7 @@ with DAG(
         FROM fact_produksi f
         JOIN dim_perusahaan p ON f.perusahaan_id = p.perusahaan_id
         LEFT JOIN dim_kabupaten k ON f.kode_wilayah = k.kode_wilayah
-        JOIN dim_waktu w ON f.periode = w.periode;
+        JOIN dim_periode w ON f.periode = w.periode;
         
         -- 2. Buat index di versi baru SEBELUM swap
         CREATE UNIQUE INDEX idx_dm_gap_prod_grain_{{ ts_nodash }} 
@@ -200,13 +200,12 @@ with DAG(
             f.volume_penjualan_ton,
             f.rata_rata_historis_ton,
             f.stok_akhir_ton,
-            h.harga_cpo,
+            w.harga_cpo,
             f.indikasi_timbun,
             NOW() AS last_refreshed
         FROM fact_operasional f
         JOIN dim_perusahaan p ON f.perusahaan_id = p.perusahaan_id
-        JOIN dim_waktu w ON f.periode = w.periode
-        LEFT JOIN fact_harga_cpo h ON f.periode = h.periode;
+        JOIN dim_periode w ON f.periode = w.periode;
         
         -- 2. Buat index di versi baru SEBELUM swap
         CREATE UNIQUE INDEX idx_dm_timbun_grain_{{ ts_nodash }} 
@@ -267,7 +266,7 @@ with DAG(
         LEFT JOIN dim_varietas v ON k.varietas_id = v.varietas_id
         JOIN dim_perusahaan p ON f.perusahaan_id = p.perusahaan_id
         JOIN dim_status_panen s ON f.status_id = s.status_id
-        JOIN dim_waktu w ON f.periode = w.periode;
+        JOIN dim_periode w ON f.periode = w.periode;
         
         -- 2. Buat index di versi baru SEBELUM swap
         CREATE UNIQUE INDEX idx_dm_panen_grain_{{ ts_nodash }} 

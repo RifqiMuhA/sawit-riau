@@ -1,15 +1,18 @@
 """
-DAG 6 — ETL MongoDB Alert: log_alert_harian → fact_rendemen
-===========================================================
+DAG 6 — ETL MongoDB Alert: log_alert_harian → fact_alert_operasional
+=====================================================================
 Sumber  : MongoDB `sawit_alerts.log_alert_harian` (12 perusahaan)
-Target  : fact_rendemen di sawit_dwh (PostGIS)
+Target  : fact_alert_operasional di sawit_dwh (PostGIS)
 Jadwal  : @monthly
 
+Catatan : Tabel sebelumnya bernama fact_rendemen (naming mismatch).
+          Isi tabel adalah agregasi alert operasional harian, bukan % rendemen CPO.
+
 Airflow Tasks:
-1. extract_mongodb       : Mengambil data mentah (2000+ docs) dari MongoDB
-2. transform_clean_data  : Membersihkan data dan format YYYY-MM
+1. extract_mongodb             : Mengambil data mentah (2000+ docs) dari MongoDB
+2. transform_clean_data        : Membersihkan data dan format YYYY-MM
 3. transform_aggregate_metrics : Menghitung agregasi per bulan & perusahaan
-4. load_fact_rendemen    : Upsert data agregasi ke PostGIS DWH
+4. load_fact_alert_operasional : Upsert data agregasi ke PostGIS DWH
 """
 
 from __future__ import annotations
@@ -122,8 +125,8 @@ def transform_aggregate_metrics(ti, **kwargs):
     ti.xcom_push(key="aggregated_data", value=transformed_rows)
 
 
-def load_fact_rendemen(ti, **kwargs):
-    """LOAD: Memasukkan data agregasi ke fact_rendemen di Data Warehouse."""
+def load_fact_alert_operasional(ti, **kwargs):
+    """LOAD: Memasukkan data agregasi ke fact_alert_operasional di Data Warehouse."""
     transformed_rows = ti.xcom_pull(task_ids="transform_aggregate_metrics", key="aggregated_data")
     
     if not transformed_rows:
@@ -132,7 +135,7 @@ def load_fact_rendemen(ti, **kwargs):
 
     dwh = PostgresHook(postgres_conn_id="postgis_dwh")
     sql = """
-        INSERT INTO fact_rendemen
+        INSERT INTO fact_alert_operasional
             (perusahaan_id, periode, total_alert,
              alert_ditangani, alert_tidak_ditangani, jenis_alert_terbanyak)
         VALUES (%(perusahaan_id)s, %(periode)s, %(total_alert)s,
@@ -144,10 +147,10 @@ def load_fact_rendemen(ti, **kwargs):
             jenis_alert_terbanyak  = EXCLUDED.jenis_alert_terbanyak
     """
     conn = dwh.get_conn()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.executemany(sql, transformed_rows)
     conn.commit()
-    log.info("Berhasil menyimpan %d baris ke tabel fact_rendemen.", len(transformed_rows))
+    log.info("Berhasil menyimpan %d baris ke tabel fact_alert_operasional.", len(transformed_rows))
 
 
 # ─────────────────────────────────────────────────────────────
@@ -163,7 +166,7 @@ default_args = {
 
 with DAG(
     dag_id      = "dag6_alert_etl",
-    description = "Pecahan Extract, Transform, Load untuk MongoDB Alert menggunakan PythonOperator",
+    description = "ETL MongoDB log_alert_harian → fact_alert_operasional (agregasi bulanan per perusahaan)",
     start_date  = datetime(2023, 1, 1),
     schedule    = "@monthly",
     catchup     = False,
@@ -187,8 +190,8 @@ with DAG(
     )
 
     t4 = PythonOperator(
-        task_id         = "load_fact_rendemen",
-        python_callable = load_fact_rendemen,
+        task_id         = "load_fact_alert_operasional",
+        python_callable = load_fact_alert_operasional,
     )
 
     # Menentukan alur dependencies (Graph)

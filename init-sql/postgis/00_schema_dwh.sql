@@ -47,63 +47,51 @@ CREATE TABLE IF NOT EXISTS map_kabupaten_alias (
 );
 
 INSERT INTO map_kabupaten_alias (nama_alias, kode_wilayah, sumber) VALUES
-    -- Kuantan Singingi
     ('Kuantan Singingi',      '1401', 'excel_pks'),
     ('Kab. Kuantan Singingi', '1401', 'excel_pks'),
     ('KUANTAN SINGINGI',      '1401', 'excel_pks'),
     ('Kuansing',              '1401', 'excel_pks'),
-    -- Indragiri Hulu
     ('Indragiri Hulu',        '1402', 'excel_pks'),
     ('Kab. Indragiri Hulu',   '1402', 'excel_pks'),
     ('INDRAGIRI HULU',        '1402', 'excel_pks'),
     ('Inhu',                  '1402', 'excel_pks'),
     ('INHU',                  '1402', 'excel_pks'),
-    -- Indragiri Hilir
     ('Indragiri Hilir',       '1403', 'excel_pks'),
     ('Kab. Indragiri Hilir',  '1403', 'excel_pks'),
     ('INDRAGIRI HILIR',       '1403', 'excel_pks'),
     ('Inhil',                 '1403', 'excel_pks'),
     ('INHIL',                 '1403', 'excel_pks'),
-    -- Pelalawan
     ('Pelalawan',             '1404', 'excel_pks'),
     ('Kab. Pelalawan',        '1404', 'excel_pks'),
     ('PELALAWAN',             '1404', 'excel_pks'),
-    -- Siak
     ('Siak',                  '1405', 'excel_pks'),
     ('Kab. Siak',             '1405', 'excel_pks'),
     ('SIAK',                  '1405', 'excel_pks'),
-    -- Kampar
     ('Kampar',                '1406', 'excel_pks'),
     ('Kab. Kampar',           '1406', 'excel_pks'),
     ('KAMPAR',                '1406', 'excel_pks'),
     ('Kampar Regency',        '1406', 'excel_pks'),
-    -- Rokan Hulu
     ('Rokan Hulu',            '1407', 'excel_pks'),
     ('Kab. Rokan Hulu',       '1407', 'excel_pks'),
     ('ROKAN HULU',            '1407', 'excel_pks'),
     ('Rohul',                 '1407', 'excel_pks'),
     ('ROHUL',                 '1407', 'excel_pks'),
-    -- Bengkalis
     ('Bengkalis',             '1408', 'excel_pks'),
     ('Kab. Bengkalis',        '1408', 'excel_pks'),
     ('BENGKALIS',             '1408', 'excel_pks'),
-    -- Rokan Hilir
     ('Rokan Hilir',           '1409', 'excel_pks'),
     ('Kab. Rokan Hilir',      '1409', 'excel_pks'),
     ('ROKAN HILIR',           '1409', 'excel_pks'),
     ('Rohil',                 '1409', 'excel_pks'),
     ('ROHIL',                 '1409', 'excel_pks'),
-    -- Kepulauan Meranti
     ('Kepulauan Meranti',     '1410', 'excel_pks'),
     ('Kab. Kepulauan Meranti','1410', 'excel_pks'),
     ('KEPULAUAN MERANTI',     '1410', 'excel_pks'),
     ('Meranti',               '1410', 'excel_pks'),
     ('MERANTI',               '1410', 'excel_pks'),
-    -- Kota Pekanbaru
     ('Pekanbaru',             '1471', 'excel_pks'),
     ('Kota Pekanbaru',        '1471', 'excel_pks'),
     ('PEKANBARU',             '1471', 'excel_pks'),
-    -- Kota Dumai
     ('Dumai',                 '1472', 'excel_pks'),
     ('Kota Dumai',            '1472', 'excel_pks'),
     ('DUMAI',                 '1472', 'excel_pks')
@@ -136,7 +124,8 @@ ON CONFLICT DO NOTHING;
 
 -- ──
 
--- dim_karyawan: SDM per perusahaan (diisi DAG 2)
+-- dim_karyawan: SDM per perusahaan — detail karyawan per individu
+-- Diisi DAG 2; digunakan sebagai lookup detail oleh fact_tenaga_kerja
 CREATE TABLE IF NOT EXISTS dim_karyawan (
     karyawan_id   VARCHAR(30)  PRIMARY KEY,
     perusahaan_id VARCHAR(20)  REFERENCES dim_perusahaan(perusahaan_id),
@@ -145,17 +134,23 @@ CREATE TABLE IF NOT EXISTS dim_karyawan (
     status        VARCHAR(20)  -- 'aktif' / 'non-aktif' (setelah normalisasi ETL)
 );
 
+CREATE INDEX IF NOT EXISTS idx_dim_karyawan_perusahaan ON dim_karyawan (perusahaan_id);
+
 -- ──
 
--- dim_waktu: periode YYYY-MM, di-generate 2023-01 s/d 2025-12
-CREATE TABLE IF NOT EXISTS dim_waktu (
-    periode  CHAR(7)   PRIMARY KEY,           -- Format YYYY-MM
-    tahun    SMALLINT  NOT NULL,
-    bulan    SMALLINT  NOT NULL CHECK (bulan   BETWEEN 1  AND 12),
-    kuartal  SMALLINT  NOT NULL CHECK (kuartal BETWEEN 1  AND 4)
+-- dim_periode: dimensi waktu bulanan dengan konteks pasar CPO
+-- grain  = YYYY-MM (bulanan)
+-- kuartal = atribut kalender untuk aggregasi Q1–Q4 di dashboard (bukan grain terpisah)
+-- harga_cpo = atribut pasar periodik, diisi oleh DAG 3 setiap tahun
+CREATE TABLE IF NOT EXISTS dim_periode (
+    periode   CHAR(7)       PRIMARY KEY,           -- Format YYYY-MM
+    tahun     SMALLINT      NOT NULL,
+    bulan     SMALLINT      NOT NULL CHECK (bulan   BETWEEN 1 AND 12),
+    kuartal   SMALLINT      NOT NULL CHECK (kuartal BETWEEN 1 AND 4),
+    harga_cpo NUMERIC(10,2)                        -- Rp/kg CPO plasma Disbun Riau, NULL sampai DAG 3 jalan
 );
 
-INSERT INTO dim_waktu (periode, tahun, bulan, kuartal)
+INSERT INTO dim_periode (periode, tahun, bulan, kuartal)
 SELECT
     TO_CHAR(d, 'YYYY-MM')                        AS periode,
     EXTRACT(YEAR  FROM d)::SMALLINT              AS tahun,
@@ -166,31 +161,36 @@ ON CONFLICT DO NOTHING;
 
 -- ──
 
--- dim_varietas: referensi varietas kelapa sawit (Baru)
+-- dim_varietas: referensi varietas kelapa sawit komersial di Riau
+-- Merupakan outrigger dimension: fact_panen → dim_kebun → dim_varietas
 CREATE TABLE IF NOT EXISTS dim_varietas (
     varietas_id          VARCHAR(20)   PRIMARY KEY,
     nama_varietas        VARCHAR(100)  NOT NULL,
     produsen             VARCHAR(100),
     potensi_cpo          NUMERIC(4,2),  -- % CPO dari TBS
     tahan_ganoderma      VARCHAR(20),   -- 'Tinggi' / 'Sedang' / 'Rentan'
-    rerata_tandan_kg     NUMERIC(5,2),  -- kg per tandan
-    umur_produktif_tahun SMALLINT,
+    rerata_tandan_kg     NUMERIC(5,2),  -- kg per tandan rata-rata
+    umur_produktif_tahun SMALLINT,      -- tahun produktif sejak tanam
     karakteristik_yield  VARCHAR(20),   -- 'tinggi' / 'sedang' / 'rendah'
     ketahanan_cuaca      VARCHAR(20),   -- 'tahan' / 'tidak tahan'
     asal_bibit           VARCHAR(100)
 );
 
--- Seed 3 varietas standar (dari data-perusahaan)
-INSERT INTO dim_varietas (varietas_id, nama_varietas, produsen, potensi_cpo, tahan_ganoderma, rerata_tandan_kg) VALUES
-    ('V-01', 'DxP PPKS 540',   'PPKS',    8.5, 'Tinggi', 16.5),
-    ('V-02', 'DxP Simalungun', 'PPKS',    7.8, 'Sedang', 18.2),
-    ('V-03', 'DxP Yangambi',   'Socfindo', 8.2, 'Rentan', 15.0)
-ON CONFLICT DO NOTHING;
+-- Seed 3 varietas utama dengan data lengkap
+INSERT INTO dim_varietas VALUES
+    ('V-01', 'DxP PPKS 540',   'PPKS',    8.5, 'Tinggi', 16.5, 25, 'tinggi', 'tahan',       'Indonesia (PPKS, Marihat)'),
+    ('V-02', 'DxP Simalungun', 'PPKS',    7.8, 'Sedang', 18.2, 25, 'sedang', 'tahan',       'Indonesia (PPKS, Simalungun)'),
+    ('V-03', 'DxP Yangambi',   'Socfindo', 8.2, 'Rentan', 15.0, 22, 'sedang', 'tidak tahan', 'Kongo / Socfindo')
+ON CONFLICT (varietas_id) DO UPDATE SET
+    umur_produktif_tahun = EXCLUDED.umur_produktif_tahun,
+    karakteristik_yield  = EXCLUDED.karakteristik_yield,
+    ketahanan_cuaca      = EXCLUDED.ketahanan_cuaca,
+    asal_bibit           = EXCLUDED.asal_bibit;
 
 -- ──
 
--- dim_kebun: blok kebun fisik per perusahaan (Baru)
--- Diisi dari tabel kebun/blok_kebun/lahan/kebun_produksi di OLTP
+-- dim_kebun: blok kebun fisik per perusahaan
+-- Diisi dari tabel kebun/blok_kebun/lahan/kebun_produksi di OLTP (DAG 2)
 CREATE TABLE IF NOT EXISTS dim_kebun (
     kebun_id      VARCHAR(20)   PRIMARY KEY,
     perusahaan_id VARCHAR(20)   NOT NULL REFERENCES dim_perusahaan(perusahaan_id),
@@ -206,7 +206,7 @@ CREATE INDEX IF NOT EXISTS idx_dim_kebun_perusahaan ON dim_kebun (perusahaan_id)
 
 -- ──
 
--- dim_status_panen: lookup status pelaksanaan panen (Baru)
+-- dim_status_panen: lookup status pelaksanaan panen
 CREATE TABLE IF NOT EXISTS dim_status_panen (
     status_id    VARCHAR(20)   PRIMARY KEY,
     status_label VARCHAR(20)   NOT NULL,
@@ -226,11 +226,11 @@ ON CONFLICT DO NOTHING;
 -- fact_ndvi: Tujuan 1 — status & kondisi kebun per kabupaten per bulan
 -- Sumber: DAG 1 (GEE Sentinel-2)
 -- status_kebun diisi DAG 4 (analitik), bukan DAG 1
+-- ndvi_stddev dihapus: GEE hanya menghitung mean & count, stddev tidak dipakai downstream
 CREATE TABLE IF NOT EXISTS fact_ndvi (
     kode_wilayah VARCHAR(10)   NOT NULL REFERENCES dim_kabupaten(kode_wilayah),
-    periode      CHAR(7)       NOT NULL REFERENCES dim_waktu(periode),
+    periode      CHAR(7)       NOT NULL REFERENCES dim_periode(periode),
     ndvi_mean    NUMERIC(5,4)  NOT NULL,
-    ndvi_stddev  NUMERIC(5,4),
     pixel_count  INTEGER,
     status_kebun VARCHAR(20),  -- 'normal' / 'menurun' / 'kritis' — dihitung DAG 4
     PRIMARY KEY (kode_wilayah, periode)
@@ -245,7 +245,7 @@ CREATE INDEX IF NOT EXISTS idx_fact_ndvi_status  ON fact_ndvi (status_kebun);
 -- Dua jalur: Excel PKS (dinas) & DB operasional perusahaan
 CREATE TABLE IF NOT EXISTS fact_produksi (
     perusahaan_id    VARCHAR(20)   NOT NULL REFERENCES dim_perusahaan(perusahaan_id),
-    periode          CHAR(7)       NOT NULL REFERENCES dim_waktu(periode),
+    periode          CHAR(7)       NOT NULL REFERENCES dim_periode(periode),
     kode_wilayah     VARCHAR(10)   REFERENCES dim_kabupaten(kode_wilayah),
     produksi_tbs_ton NUMERIC(12,2) NOT NULL,
     luas_panen_ha    NUMERIC(10,2) NOT NULL,
@@ -263,11 +263,11 @@ CREATE INDEX IF NOT EXISTS idx_fact_produksi_cluster ON fact_produksi (cluster_p
 -- Sumber: DB operasional perusahaan saja (bukan Excel PKS)
 CREATE TABLE IF NOT EXISTS fact_operasional (
     perusahaan_id          VARCHAR(20)   NOT NULL REFERENCES dim_perusahaan(perusahaan_id),
-    periode                CHAR(7)       NOT NULL REFERENCES dim_waktu(periode),
+    periode                CHAR(7)       NOT NULL REFERENCES dim_periode(periode),
     stok_akhir_ton         NUMERIC(12,2),          -- nullable: Perusahaan D kadang NULL
     volume_penjualan_ton   NUMERIC(12,2) NOT NULL,
-    rata_rata_historis_ton NUMERIC(12,2),           -- rolling avg 3 bulan, dihitung ETL
-    indikasi_timbun        BOOLEAN,                 -- TRUE jika 3 kondisi serentak terpenuhi
+    rata_rata_historis_ton NUMERIC(12,2),           -- rolling avg 3 bulan, dihitung DAG 4
+    indikasi_timbun        BOOLEAN,                 -- TRUE jika 3 kondisi serentak terpenuhi, DAG 4
     stok_flag              VARCHAR(20),             -- 'missing' jika stok NULL (Perusahaan D)
     PRIMARY KEY (perusahaan_id, periode)
 );
@@ -277,20 +277,11 @@ CREATE INDEX IF NOT EXISTS idx_fact_operasional_timbun  ON fact_operasional (ind
 
 -- ──
 
--- fact_harga_cpo: sinyal pasar untuk Tujuan 3
--- Sumber: DAG 3, scraping PDF Disbun Riau per tahun (retrospektif, bukan real-time)
-CREATE TABLE IF NOT EXISTS fact_harga_cpo (
-    periode   CHAR(7)        PRIMARY KEY REFERENCES dim_waktu(periode),
-    harga_cpo NUMERIC(10,2)  NOT NULL    -- Rp/kg, rata-rata bulanan CPO plasma Disbun Riau
-);
-
--- ──
-
--- fact_panen: Tujuan 4 — realisasi vs target panen per kebun (Baru)
+-- fact_panen: Tujuan 4 — realisasi vs target panen per kebun
 -- Sumber: DAG 5 (tabel jadwal_panen/rencana_panen/target_panen/realisasi_panen di OLTP)
 CREATE TABLE IF NOT EXISTS fact_panen (
     kebun_id             VARCHAR(20)   NOT NULL REFERENCES dim_kebun(kebun_id),
-    periode              CHAR(7)       NOT NULL REFERENCES dim_waktu(periode),
+    periode              CHAR(7)       NOT NULL REFERENCES dim_periode(periode),
     perusahaan_id        VARCHAR(20)   NOT NULL REFERENCES dim_perusahaan(perusahaan_id),
     target_panen_ton     NUMERIC(12,2) NOT NULL,
     realisasi_panen_ton  NUMERIC(12,2),            -- NULL jika belum selesai
@@ -305,11 +296,12 @@ CREATE INDEX IF NOT EXISTS idx_fact_panen_status     ON fact_panen (status_id);
 
 -- ──
 
--- fact_rendemen: agregat bulanan dari MongoDB log_alert_harian (Baru)
+-- fact_alert_operasional: agregat bulanan dari MongoDB log_alert_harian
 -- Sumber: DAG 6 (MongoDB per perusahaan)
-CREATE TABLE IF NOT EXISTS fact_rendemen (
+-- Catatan: sebelumnya bernama fact_rendemen (naming mismatch — isi adalah alert, bukan % rendemen CPO)
+CREATE TABLE IF NOT EXISTS fact_alert_operasional (
     perusahaan_id         VARCHAR(20)  NOT NULL REFERENCES dim_perusahaan(perusahaan_id),
-    periode               CHAR(7)      NOT NULL REFERENCES dim_waktu(periode),
+    periode               CHAR(7)      NOT NULL REFERENCES dim_periode(periode),
     total_alert           INTEGER      NOT NULL,
     alert_ditangani       INTEGER,
     alert_tidak_ditangani INTEGER,
@@ -317,4 +309,22 @@ CREATE TABLE IF NOT EXISTS fact_rendemen (
     PRIMARY KEY (perusahaan_id, periode)
 );
 
-CREATE INDEX IF NOT EXISTS idx_fact_rendemen_periode ON fact_rendemen (periode);
+CREATE INDEX IF NOT EXISTS idx_fact_alert_periode    ON fact_alert_operasional (periode);
+CREATE INDEX IF NOT EXISTS idx_fact_alert_perusahaan ON fact_alert_operasional (perusahaan_id);
+
+-- ──
+
+-- fact_tenaga_kerja: headcount SDM per perusahaan per bulan
+-- Sumber: DAG 2 (snapshot dari tabel karyawan/pegawai/karyawan_c/data_karyawan di OLTP)
+-- Membuat dim_karyawan menjadi dimensi yang valid dalam star schema
+CREATE TABLE IF NOT EXISTS fact_tenaga_kerja (
+    perusahaan_id      VARCHAR(20)  NOT NULL REFERENCES dim_perusahaan(perusahaan_id),
+    periode            CHAR(7)      NOT NULL REFERENCES dim_periode(periode),
+    total_karyawan     INTEGER      NOT NULL,
+    karyawan_aktif     INTEGER,
+    karyawan_non_aktif INTEGER,
+    PRIMARY KEY (perusahaan_id, periode)
+);
+
+CREATE INDEX IF NOT EXISTS idx_fact_tenaga_periode    ON fact_tenaga_kerja (periode);
+CREATE INDEX IF NOT EXISTS idx_fact_tenaga_perusahaan ON fact_tenaga_kerja (perusahaan_id);

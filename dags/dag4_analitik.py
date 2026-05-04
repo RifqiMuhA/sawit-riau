@@ -3,6 +3,12 @@ DAG 4 — Kalkulasi Analitik (Machine Learning & Business Logic)
 ==============================================================
 Menjalankan perhitungan analitik menggunakan paradigma ETL murni 
 dengan Airflow TaskGroups untuk visualisasi Graph yang jelas.
+
+Dependency:
+  - DAG 1 (NDVI Extraction) → fact_ndvi harus sudah terisi (untuk status_kebun)
+  - DAG 2 (Produksi ETL)   → fact_produksi & fact_operasional harus sudah terisi
+  - DAG 3 (Harga CPO)      → dim_periode.harga_cpo harus sudah terisi (untuk hoarding)
+  DAG 4 menunggu ketiganya via PythonSensor sebelum memulai kalkulasi.
 """
 
 from __future__ import annotations
@@ -14,11 +20,44 @@ import numpy as np
 import pandas as pd
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.sensors.python import PythonSensor
 from airflow.utils.task_group import TaskGroup
+from airflow.models.dagrun import DagRun
+from airflow.utils.state import DagRunState
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from sklearn.cluster import KMeans
 
 log = logging.getLogger(__name__)
+
+# ─────────────────────────────────────────────────────────────
+# SENSOR HELPER — Sama seperti DAG 7 & DAG 8
+# ─────────────────────────────────────────────────────────────
+
+SENSOR_TIMEOUT_SECONDS = 60 * 60 * 6  # 6 jam
+SENSOR_POKE_INTERVAL   = 60           # cek tiap 1 menit
+
+def _check_latest_run(external_dag_id: str, **kwargs) -> bool:
+    """
+    Mengecek apakah eksekusi terakhir dari sebuah DAG berstatus SUCCESS.
+    Menggunakan pendekatan "latest run" agar tidak terikat pada execution_date
+    yang sama persis (fleksibel untuk trigger manual).
+    """
+    runs = DagRun.find(dag_id=external_dag_id)
+    if not runs:
+        log.warning("[Sensor] Belum ada run untuk DAG: %s", external_dag_id)
+        return False
+    latest_run = sorted(runs, key=lambda x: x.execution_date, reverse=True)[0]
+    log.info(
+        "[Sensor] DAG %s — run terakhir: %s, state: %s",
+        external_dag_id, latest_run.execution_date, latest_run.state
+    )
+    return latest_run.state == DagRunState.SUCCESS
+
+def _on_sensor_timeout(context):
+    """Callback saat sensor timeout — upstream DAG tidak selesai tepat waktu."""
+    dag_id  = context["task"].op_kwargs["external_dag_id"]
+    task_id = context["task_instance"].task_id
+    log.error("[ALERT] Sensor %s timeout: %s tidak selesai dalam batas waktu.", task_id, dag_id)
 
 # ─────────────────────────────────────────────────────────────
 # TUJUAN 2: K-MEANS PRODUKTIVITAS
@@ -97,9 +136,9 @@ def load_clusters(ti, **kwargs):
 def extract_operasional(ti, **kwargs):
     dwh = PostgresHook(postgres_conn_id="postgis_dwh")
     query = """
-        SELECT o.perusahaan_id, o.periode, o.stok_akhir_ton, o.volume_penjualan_ton, h.harga_cpo
+        SELECT o.perusahaan_id, o.periode, o.stok_akhir_ton, o.volume_penjualan_ton, p.harga_cpo
         FROM fact_operasional o
-        LEFT JOIN fact_harga_cpo h ON o.periode = h.periode
+        LEFT JOIN dim_periode p ON o.periode = p.periode
         ORDER BY o.perusahaan_id, o.periode
     """
     df = dwh.get_pandas_df(query)
@@ -244,27 +283,80 @@ with DAG(
     tags        = ["analitik", "machine_learning", "kpi"],
 ) as dag:
 
-    # --- TaskGroup 1: K-Means Cluster ---
+    # ─────────────────────────────────────────────────────────
+    # UPSTREAM SENSORS — Tunggu pipeline data selesai
+    # ─────────────────────────────────────────────────────────
+
+    # fact_ndvi diisi DAG 1 (diperlukan oleh tg_ndvi → status_kebun)
+    wait_for_dag1 = PythonSensor(
+        task_id             = "wait_for_dag1_ndvi",
+        python_callable     = _check_latest_run,
+        op_kwargs           = {"external_dag_id": "dag1_ndvi_extraction"},
+        mode                = "reschedule",
+        poke_interval       = SENSOR_POKE_INTERVAL,
+        timeout             = SENSOR_TIMEOUT_SECONDS,
+        soft_fail           = False,
+        on_failure_callback = _on_sensor_timeout,
+    )
+
+    # fact_produksi & fact_operasional diisi DAG 2
+    wait_for_dag2 = PythonSensor(
+        task_id             = "wait_for_dag2_produksi",
+        python_callable     = _check_latest_run,
+        op_kwargs           = {"external_dag_id": "dag2_produksi_etl"},
+        mode                = "reschedule",   # tidak memblok worker slot
+        poke_interval       = SENSOR_POKE_INTERVAL,
+        timeout             = SENSOR_TIMEOUT_SECONDS,
+        soft_fail           = False,
+        on_failure_callback = _on_sensor_timeout,
+    )
+
+    # dim_periode.harga_cpo diisi DAG 3 (diperlukan oleh tg_timbun → hoarding detection)
+    wait_for_dag3 = PythonSensor(
+        task_id             = "wait_for_dag3_harga_cpo",
+        python_callable     = _check_latest_run,
+        op_kwargs           = {"external_dag_id": "dag3_harga_cpo"},
+        mode                = "reschedule",
+        poke_interval       = SENSOR_POKE_INTERVAL,
+        timeout             = SENSOR_TIMEOUT_SECONDS,
+        soft_fail           = False,
+        on_failure_callback = _on_sensor_timeout,
+    )
+
+    # ─────────────────────────────────────────────────────────
+    # TASK GROUPS ANALITIK (berjalan paralel setelah sensor OK)
+    # ─────────────────────────────────────────────────────────
+
+    # --- TaskGroup 1: K-Means Cluster Produktivitas (Tujuan 2) ---
     with TaskGroup("tujuan_2_kmeans", tooltip="Klastering Produktivitas dengan K-Means") as tg_kmeans:
         e1 = PythonOperator(task_id="extract_produksi", python_callable=extract_produksi)
         t1 = PythonOperator(task_id="transform_kmeans", python_callable=transform_kmeans)
         l1 = PythonOperator(task_id="load_clusters", python_callable=load_clusters)
         e1 >> t1 >> l1
 
-    # --- TaskGroup 2: Deteksi Penimbunan ---
+    # --- TaskGroup 2: Deteksi Penimbunan (Tujuan 3) ---
     with TaskGroup("tujuan_3_penimbunan", tooltip="Deteksi Indikasi Penahanan Stok CPO") as tg_timbun:
         e2 = PythonOperator(task_id="extract_operasional", python_callable=extract_operasional)
         t2 = PythonOperator(task_id="transform_hoarding", python_callable=transform_hoarding)
         l2 = PythonOperator(task_id="load_hoarding", python_callable=load_hoarding)
         e2 >> t2 >> l2
 
-    # --- TaskGroup 3: Status Lahan ---
+    # --- TaskGroup 3: Status Lahan Berdasarkan NDVI (Tujuan 1) ---
     with TaskGroup("tujuan_1_status_kebun", tooltip="Label Lahan Kritis Berdasarkan NDVI") as tg_ndvi:
         e3 = PythonOperator(task_id="extract_ndvi", python_callable=extract_ndvi)
         t3 = PythonOperator(task_id="transform_ndvi", python_callable=transform_ndvi)
         l3 = PythonOperator(task_id="load_ndvi", python_callable=load_ndvi)
         e3 >> t3 >> l3
 
-    # Alur Eksekusi Antar Grup
-    # Karena ketiganya independen, kita bisa jalankan paralel.
-    [tg_kmeans, tg_timbun, tg_ndvi]
+    # ─────────────────────────────────────────────────────────
+    # ALUR DEPENDENSI
+    # Sensor (paralel) → selesai semua → TaskGroup analitik (paralel)
+    # ─────────────────────────────────────────────────────────
+
+    # Ketiga sensor berjalan paralel (tidak ada dependency antar sensor)
+    sensors = [wait_for_dag1, wait_for_dag2, wait_for_dag3]
+
+    # Setelah SEMUA sensor sukses, baru ketiga TaskGroup analitik berjalan paralel
+    sensors >> tg_kmeans
+    sensors >> tg_timbun
+    sensors >> tg_ndvi
