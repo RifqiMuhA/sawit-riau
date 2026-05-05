@@ -32,7 +32,7 @@ def get_riau_geojson() -> dict:
         SELECT
             kode_wilayah,
             nama_kabupaten,
-            ST_AsGeoJSON(geometry)::json AS geom
+            ST_AsGeoJSON(ST_SimplifyPreserveTopology(geometry, 0.001))::json AS geom
         FROM dim_kabupaten
         WHERE geometry IS NOT NULL
         ORDER BY kode_wilayah
@@ -79,7 +79,7 @@ def get_kabupaten_options() -> list[dict]:
     df = run_query(
         "SELECT kode_wilayah, nama_kabupaten FROM dim_kabupaten ORDER BY nama_kabupaten"
     )
-    opts = [{"label": "Semua Kabupaten", "value": "ALL"}]
+    opts = [{"label": "Rata-rata Semua Kabupaten", "value": "ALL"}]
     opts += [
         {"label": row["nama_kabupaten"], "value": row["kode_wilayah"]}
         for _, row in df.iterrows()

@@ -1,6 +1,6 @@
 """
 pages/home.py — Landing Page (Minimalis)
-1 section: Hero banner + 4 KPI Cards + tombol navigasi
+1 section: Hero banner + 4 KPI Cards + Tagline & Mascot
 """
 
 import dash
@@ -35,12 +35,11 @@ def _load_kpis() -> dict:
         """)
         kpi["produktif"] = f"{df['pct'].iloc[0]}%"
 
-        # Deteksi penimbunan bulan terakhir
+        # Deteksi penimbunan (Total Kasus)
         df = run_query("""
             SELECT COUNT(*) AS n
             FROM fact_operasional
             WHERE indikasi_timbun = TRUE
-              AND periode = (SELECT MAX(periode) FROM fact_operasional)
         """)
         kpi["timbun"] = str(df["n"].iloc[0])
 
@@ -56,56 +55,46 @@ def _load_kpis() -> dict:
 def layout():
     kpi = _load_kpis()
 
-    kpi_cards = dbc.Row([
-        dbc.Col(_kpi_card(kpi["produksi"],   "Total Produksi (Bulan Terakhir)", "🌾", ""), lg=3, md=6, sm=12, className="mb-3"),
-        dbc.Col(_kpi_card(kpi["perusahaan"], "Perusahaan PKS Terdaftar",        "🏭", "info"), lg=3, md=6, sm=12, className="mb-3"),
-        dbc.Col(_kpi_card(kpi["produktif"],  "Kebun Berstatus Produktif",       "✅", ""), lg=3, md=6, sm=12, className="mb-3"),
-        dbc.Col(_kpi_card(kpi["timbun"],     "Indikasi Penimbunan (Bln. Ini)",  "⚠️", "danger"), lg=3, md=6, sm=12, className="mb-3"),
-    ], className="g-3")
-
     return html.Div([
-        # Hero Banner
-        html.Div([
-            dbc.Row([
-                dbc.Col([
-                    html.H1("Sistem Monitoring\nPerkebunan Sawit Riau", className="landing-hero-title"),
-                    html.P(
-                        "Platform analitik terintegrasi untuk memantau produktivitas, "
-                        "kondisi lahan, dan potensi anomali distribusi CPO "
-                        "di 12 Kabupaten/Kota Provinsi Riau.",
-                    ),
+        # Top Row: Hero Card (Left) + KPI Cards (Right)
+        dbc.Row([
+            # Hero Card
+            dbc.Col([
+                html.Div([
+                    html.Div(className="hero-bg-overlay"),
                     html.Div([
-                        dcc.Link("📊 Lihat Reporting →", href="/reporting/sawit",
-                                 className="btn-primary-green"),
-                        dcc.Link("🔬 Lihat Analytics →", href="/analytics/kondisi-kebun",
-                                 className="btn-primary-green",
-                                 style={"background": "rgba(255,255,255,0.18)",
-                                        "color": "#fff",
-                                        "border": "1px solid rgba(255,255,255,0.4)"}),
-                    ]),
-                ], lg=8),
-                dbc.Col([
-                    html.Div("🌴", style={"fontSize": "120px", "textAlign": "center",
-                                          "opacity": "0.35", "marginTop": "10px"}),
-                ], lg=4, className="d-none d-lg-block"),
-            ]),
-        ], className="landing-hero"),
+                        html.Div("Pemantauan Kebun Sawit Cerdas, Terintegrasi.", className="hero-title"),
+                        html.Div("Pantau produktivitas, SDM, hingga kondisi lahan sawit di seluruh Provinsi Riau melalui dashboard ini.", className="hero-desc"),
+                        dcc.Link(html.Button("Lihat Reporting →", className="hero-btn"), href="/reporting/sawit")
+                    ], className="hero-content"),
+                ], className="hero-card")
+            ], lg=4, md=12, className="mb-4"),
 
-        # KPI Cards
+            # 4 KPI Cards
+            dbc.Col([
+                dbc.Row([
+                    dbc.Col(_mini_kpi("/assets/mascot_2.webp", "Total Produksi (Bulan Ini)", kpi["produksi"]), lg=3, md=6, sm=6, xs=12, className="mb-3"),
+                    dbc.Col(_mini_kpi("/assets/mascot_3.webp", "Perusahaan Terdaftar", kpi["perusahaan"]), lg=3, md=6, sm=6, xs=12, className="mb-3"),
+                    dbc.Col(_mini_kpi("/assets/mascot_4.webp", "Kebun Produktif", kpi["produktif"]), lg=3, md=6, sm=6, xs=12, className="mb-3"),
+                    dbc.Col(_mini_kpi("/assets/mascot_5.webp", "Indikasi Penimbunan", kpi["timbun"]), lg=3, md=6, sm=6, xs=12, className="mb-3"),
+                ], className="g-3 h-100")
+            ], lg=8, md=12)
+        ], className="g-3 mb-5 align-items-stretch"),
+
+        # Bottom Row: Tagline + Mascot
         html.Div([
-            html.P("Ringkasan Data Terkini", style={
-                "fontSize": "12px", "fontWeight": "600",
-                "color": "var(--text-muted)", "textTransform": "uppercase",
-                "letterSpacing": "1px", "marginBottom": "14px"
-            }),
-            kpi_cards,
-        ]),
+            html.Div(className="tagline-bg-overlay"),
+            html.Div([
+                html.H1("Halo, Saya Savi (Sawit Vision)!"),
+                html.P("Platform analitik terintegrasi untuk mendukung pengambilan keputusan strategis Dinas Perkebunan Provinsi Riau. Mendorong industri kelapa sawit yang lebih transparan dan efisien.")
+            ], className="tagline-text"),
+            html.Img(src="/assets/mascot_1.webp", className="tagline-mascot")
+        ], className="tagline-section")
     ])
 
-
-def _kpi_card(value: str, label: str, icon: str, variant: str) -> html.Div:
+def _mini_kpi(img_src: str, label: str, value: str) -> html.Div:
     return html.Div([
-        html.Div(icon, style={"fontSize": "24px", "marginBottom": "8px"}),
-        html.Div(value, className="kpi-value"),
-        html.Div(label, className="kpi-label"),
-    ], className=f"kpi-card {variant}")
+        html.Img(src=img_src, className="mini-kpi-mascot"),
+        html.Div(label, className="mini-kpi-label"),
+        html.Div(value, className="mini-kpi-value"),
+    ], className="mini-kpi-card")
