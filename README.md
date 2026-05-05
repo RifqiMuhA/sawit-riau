@@ -54,6 +54,29 @@ Model ini terdiri dari beberapa tabel fakta utama:
 
 ---
 
+## Sumber Data
+Sistem SAVI mengintegrasikan data dari berbagai penyedia layanan untuk menghasilkan analisis yang menjawab tujuan proyek :
+-   **12 Database OLTP Perusahaan**: Data operasional harian yang tersebar di mesin MySQL dan PostgreSQL dari 12 PKS di Riau.
+-   **Google Earth Engine (GEE)**: Ekstraksi citra satelit Sentinel-2 untuk analisis vegetasi (NDVI).
+-   **MongoDB (Log Operasional)**: Penyimpanan log sistem semi-terstruktur (BSON/JSON) untuk data peringatan mesin.
+-   **Web Scraping (Disbun Riau)**: Pengambilan data harga CPO mingguan dari portal resmi pemerintah Provinsi Riau.
+-   **Flat Files (Excel/CSV)**: Akomodasi data laporan historis dan manual dari pihak perusahaan.
+
+---
+
+## Orkestrasi Pipeline (DAGs)
+Seluruh proses bisnis di SAVI diatur oleh 8 unit DAG (*Directed Acyclic Graph*) pada Apache Airflow:
+1.  **`dag1_ndvi_extraction`**: Mengelola interaksi dengan GEE untuk ekstraksi nilai NDVI kabupaten.
+2.  **`dag2_produksi_etl`**: Pipeline ELT raksasa yang menormalisasi data dari 12 database PKS yang heterogen.
+3.  **`dag3_harga_cpo`**: Melakukan scraping otomatis terhadap harga acuan CPO pasar Riau.
+4.  **`dag4_analitik`**: Menjalankan model K-Means *clustering* dan logika deteksi penimbunan pada DWH.
+5.  **`dag5_panen_etl`**: Menarik data realisasi panen mikro dari sistem operasional lapangan.
+6.  **`dag6_alert_etl`**: Mentransformasi dokumen MongoDB menjadi tabel relasional untuk analisis *downtime*.
+7.  **`dag7_datamart_refresh`**: Memperbarui *Materialized Views* di layer Datamart sesaat setelah ETL selesai.
+8.  **`dag8_minio_backup`**: Prosedur pencadangan otomatis (dump) basis data DWH ke sistem *Object Storage* MinIO.
+
+---
+
 ## Stack Teknologi
 -   **Orchestration**: Apache Airflow
 -   **Containerization**: Docker & Docker Compose
