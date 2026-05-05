@@ -1,18 +1,39 @@
 # Environment & secrets
 .env
 gee-credentials.json
+*.json.example
+!gee-credentials.json.example
 
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
 .venv/
 venv/
+ENV/
+env/
+.env.python
 
-# Airflow logs
+# Airflow
 logs/
 airflow.cfg
 airflow.db
+unittests.cfg
+webserver_config.py
 
-# Data & output
+# Docker & Data
+.docker/
+docker-volumes/
 *.parquet
+*.csv
+*.xlsx
+!data-perusahaan/*.xlsx
+!data-perusahaan/*.json
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+*.log
