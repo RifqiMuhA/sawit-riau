@@ -1,35 +1,30 @@
-# ─────────────────────────────────────────────────────────────
-#  ANCHOR: konfigurasi bersama semua service Airflow
-#  Gunakan &airflow-common agar tidak duplikasi env di tiap service
-# ─────────────────────────────────────────────────────────────
+# x-airflow-common: konfigurasi dasar untuk service Airflow
 x-airflow-common: &airflow-common
   build: .
   environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_USER}:${AIRFLOW_PASSWORD}@postgres/${AIRFLOW_DB}
-    # WAJIB di Airflow 2.x — generate: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
     AIRFLOW__CORE__FERNET_KEY: "${AIRFLOW_FERNET_KEY}"
     AIRFLOW__WEBSERVER__SECRET_KEY: "${AIRFLOW_SECRET_KEY}"
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-    # ── Koneksi Database Otomatis ──
+    # Koneksi Database
     AIRFLOW_CONN_POSTGIS_DWH: postgresql://${DWH_USER}:${DWH_PASSWORD}@postgis:5432/${DWH_DB}
     AIRFLOW_CONN_MYSQL_OLTP: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql_oltp:3306/
     AIRFLOW_CONN_POSTGRES_OLTP: postgresql://${OLTP_PG_USER}:${OLTP_PG_PASSWORD}@postgres_oltp:5432/${OLTP_PG_DB}
-    # ── Semua provider & library dipindah ke requirements.txt ──
     _PIP_ADDITIONAL_REQUIREMENTS: ""
   volumes:
     - ./dags:/opt/airflow/dags
-    - ./data-perusahaan:/opt/airflow/data-perusahaan:ro # Data dummy SQL + Excel + MongoDB JSON
-    - ./data-pdf:/opt/airflow/data-pdf # PDF Disbun Riau — DAG 3 (rw: bisa download otomatis)
-    - ./gee-credentials.json:/home/airflow/.config/earthengine/credentials:ro # GEE auth
+    - ./data-perusahaan:/opt/airflow/data-perusahaan:ro
+    - ./data-pdf:/opt/airflow/data-pdf
+    - ./gee-credentials.json:/home/airflow/.config/earthengine/credentials:ro
   depends_on:
     postgres:
-      condition: service_healthy # tunggu metadata DB siap
+      condition: service_healthy
     postgis:
-      condition: service_healthy # tunggu DWH siap sebelum DAG apapun jalan
+      condition: service_healthy
 
 services:
-  # ── 1. PostgreSQL — metadata database Airflow ───────────────
+  # Metadata DB untuk Airflow
   postgres:
     image: postgres:14
     container_name: airflow_postgres
@@ -48,9 +43,7 @@ services:
       retries: 5
       start_period: 10s
 
-  # ── 2. PostGIS — Data Warehouse spasial ────────────────────
-  #    Berisi semua dim & fact table: dim_kabupaten, dim_perusahaan,
-  #    fact_ndvi, fact_produksi, fact_operasional, fact_harga_cpo
+  # Data Warehouse PostGIS
   postgis:
     image: postgis/postgis:14-3.3
     container_name: postgis_db
@@ -62,7 +55,7 @@ services:
       - "5437:5432"
     volumes:
       - postgis_data:/var/lib/postgresql/data
-      - ./init-sql/postgis/:/docker-entrypoint-initdb.d/ # DDL DWH: dim, fact tables + seed data
+      - ./init-sql/postgis/:/docker-entrypoint-initdb.d/
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${DWH_USER}", "-d", "${DWH_DB}"]
       interval: 10s
@@ -70,17 +63,11 @@ services:
       retries: 5
       start_period: 10s
 
-  # ── 3. Airflow Init — inisialisasi DB & buat user admin ────
-  #    Harus SELESAI dulu sebelum webserver & scheduler start
-  #    db migrate (bukan db init) — sesuai Airflow 2.7+
+  # Inisialisasi Database Airflow
   airflow-init:
     <<: *airflow-common
     container_name: airflow_init
-    restart: on-failure # stop setelah sukses, retry kalau gagal
-    # CATATAN: gunakan list + | agar newline nyata dipertahankan
-    # sehingga \ di akhir baris berfungsi sebagai line-continuation bash.
-    # Jangan pakai scalar > karena ia melipat newline → spasi dan membuat
-    # '\\' + spasi menjadi satu kata tunggal (penyebab exit 127).
+    restart: on-failure
     entrypoint:
       - /bin/bash
       - -c
@@ -94,7 +81,7 @@ services:
           --role Admin \
           --email admin@example.com
 
-  # ── 4. Airflow Webserver — UI di port 8080 ─────────────────
+  # Airflow Web UI
   airflow-webserver:
     <<: *airflow-common
     container_name: airflow_web
@@ -105,24 +92,24 @@ services:
       postgis:
         condition: service_healthy
       airflow-init:
-        condition: service_completed_successfully # tunggu init selesai
+        condition: service_completed_successfully
     ports:
       - "8080:8080"
     command: webserver
-    shm_size: '256m'        # Chromium butuh shared memory (DAG 3 Selenium)
+    shm_size: '256m'
 
-  # ── 5b. Selenium Standalone Chrome — untuk DAG 3 (scraping PDF Disbun) ──
+  # Selenium Chrome untuk scraping PDF
   selenium-chrome:
     image: selenium/standalone-chrome:latest
     container_name: selenium_chrome
-    shm_size: '2g'              # Chrome butuh shared memory besar
+    shm_size: '2g'
     ports:
-      - "4444:4444"             # WebDriver endpoint (bisa dibuka di browser: /ui)
+      - "4444:4444"
     environment:
       - SE_NODE_MAX_SESSIONS=1
       - SE_VNC_NO_PASSWORD=1
     volumes:
-      - ./data-pdf:/home/seluser/downloads:rw   # Share download directory with Airflow
+      - ./data-pdf:/home/seluser/downloads:rw
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
       interval: 10s
@@ -130,7 +117,7 @@ services:
       retries: 10
       start_period: 60s
 
-  # ── 5. Airflow Scheduler — orkestrasi DAG ETL ──────────────
+  # Airflow Scheduler
   airflow-scheduler:
     <<: *airflow-common
     container_name: airflow_scheduler
@@ -141,18 +128,13 @@ services:
       postgis:
         condition: service_healthy
       airflow-init:
-        condition: service_completed_successfully # tunggu init selesai
+        condition: service_completed_successfully
       selenium-chrome:
-        condition: service_healthy               # tunggu Chrome siap
+        condition: service_healthy
     command: scheduler
     shm_size: '256m'
 
-  # ── 6. MySQL OLTP — simulasi DB operasional Perusahaan A & B ──
-  #    Perusahaan A (a-01-kampar s/d a-03-siak): tabel perusahaan, karyawan,
-  #                varietas, kebun, laporan_bulanan, jadwal_panen
-  #    Perusahaan B (b-04-indragiri-hulu s/d b-06-indragiri-hilir): tabel
-  #                perusahaan_b, pegawai, varietas, blok_kebun, rekap_bulanan, rencana_panen
-  #    Data diisi dari data-perusahaan/SQL_PKS-A-*.sql dan SQL_PKS-B-*.sql
+  # MySQL OLTP (Simulasi DB Perusahaan A & B)
   mysql-oltp:
     image: mysql:8.0
     container_name: mysql_oltp
@@ -165,7 +147,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init-sql/mysql/:/docker-entrypoint-initdb.d/ # buat db_perusahaan_a & db_perusahaan_b
+      - ./init-sql/mysql/:/docker-entrypoint-initdb.d/
     healthcheck:
       test:
         [
@@ -183,11 +165,7 @@ services:
       retries: 5
       start_period: 15s
 
-  # ── 7. PostgreSQL OLTP — simulasi DB operasional Perusahaan C & D ──
-  #    BERBEDA dari 'postgres' (metadata Airflow) & 'postgis' (DWH)
-  #    Perusahaan C: db_perusahaan_c → tabel perusahaan, karyawan, laporan
-  #    Perusahaan D: db_perusahaan_d → tabel data_perusahaan, data_karyawan, produksi_bulanan
-  #    Data diisi dari data-perusahaan/SQL_PKS-C-*.sql dan SQL_PKS-D-*.sql
+  # PostgreSQL OLTP (Simulasi DB Perusahaan C & D)
   postgres-oltp:
     image: postgres:14
     container_name: postgres_oltp
@@ -199,7 +177,7 @@ services:
       - "5438:5432"
     volumes:
       - postgres_oltp_data:/var/lib/postgresql/data
-      - ./init-sql/postgres/:/docker-entrypoint-initdb.d/ # buat db_perusahaan_c & db_perusahaan_d
+      - ./init-sql/postgres/:/docker-entrypoint-initdb.d/
     healthcheck:
       test:
         ["CMD", "pg_isready", "-U", "${OLTP_PG_USER}", "-d", "${OLTP_PG_DB}"]
@@ -208,10 +186,7 @@ services:
       retries: 5
       start_period: 10s
 
-  # ── 8. MinIO — backup snapshot DWH mingguan ─────────────────
-  #    TIDAK ada raw layer di MinIO — sesuai arsitektur brief.
-  #    MinIO hanya dipakai DAG 5 untuk backup periodik snapshot PostGIS DWH.
-  #    Semua sumber data langsung diproses Airflow → DWH (tanpa staging S3).
+  # MinIO untuk backup DWH
   minio:
     image: minio/minio
     container_name: minio
@@ -220,10 +195,10 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - "9000:9000" # S3 API endpoint
-      - "9090:9001" # MinIO Console UI (Host Port 9090 -> Container Port 9001)
+      - "9000:9000"
+      - "9090:9001"
     volumes:
-      - minio_data:/data # backup snapshot DWH — agar tidak hilang saat restart
+      - minio_data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 15s
@@ -231,9 +206,7 @@ services:
       retries: 5
       start_period: 10s
 
-  # ── 9. MongoDB — log alert operasional harian per perusahaan PKS ──
-  #    Collection: log_alert_harian di database sawit_alerts
-  #    Data diinisialisasi dari data-perusahaan/MongoDB_Alerts_PKS-*.json
+  # MongoDB untuk log alert operasional
   mongodb:
     image: mongo:6.0
     container_name: mongodb
@@ -244,8 +217,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-      - ./data-perusahaan:/data-perusahaan:ro # JSON alert per perusahaan
-      - ./init-sql/mongodb:/docker-entrypoint-initdb.d:ro # script import JSON
+      - ./data-perusahaan:/data-perusahaan:ro
+      - ./init-sql/mongodb:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 15s
@@ -253,10 +226,7 @@ services:
       retries: 5
       start_period: 15s
 
-  # ── 10. pgAdmin — GUI lengkap untuk PostGIS DWH (spatial support) ──
-  #     Akses: http://localhost:5050
-  #     Login: ${PGADMIN_EMAIL} / ${PGADMIN_PASSWORD}
-  #     Tambah server: host=postgis_db, port=5432, db=sawit_dwh, user=dwh
+  # pgAdmin GUI
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
@@ -272,10 +242,7 @@ services:
       postgis:
         condition: service_healthy
 
-  # ── 11. Plotly Dash — Dashboard Analytics & Reporting ───────
-  #     Akses: http://localhost:8050
-  #     Modul 1: Reporting (SDM, Panen, Alert, Gambaran Sawit)
-  #     Modul 2: Analytics (NDVI Peta, K-Means, Penimbunan CPO)
+  # SAVI Dashboard (Plotly Dash)
   dash_app:
     build: ./dashboard
     container_name: dash_app

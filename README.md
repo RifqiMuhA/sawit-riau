@@ -87,6 +87,18 @@ Seluruh proses bisnis di SAVI diatur oleh 8 unit DAG (*Directed Acyclic Graph*) 
 
 ---
 
+## Struktur Proyek
+Berikut adalah organisasi folder dalam repository ini:
+
+-   **`dags/`**: **Inti dari sistem SAVI**. Berisi seluruh kode orkestrasi pipeline (8 DAG) yang mengatur ETL, analitik Machine Learning, hingga prosedur backup.
+-   **`dashboard/`**: Kode sumber aplikasi *front-end* berbasis Plotly Dash untuk visualisasi data.
+-   **`data-perusahaan/`**: Dataset simulasi (SQL, Excel, dan JSON) untuk 12 entitas perusahaan kelapa sawit.
+-   **`init-sql/`**: Skrip inisialisasi basis data untuk DWH (PostGIS) dan OLTP (MySQL/PostgreSQL).
+-   **`picture/`**: Aset dokumentasi dan gambar arsitektur sistem.
+-   **`docker-compose.yml`**: Konfigurasi utama orkestrasi seluruh layanan (11 kontainer).
+
+---
+
 ## Persiapan Instalasi
 
 ### Prasyarat

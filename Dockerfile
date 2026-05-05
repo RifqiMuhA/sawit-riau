@@ -1,6 +1,6 @@
 FROM apache/airflow:2.9.0
 
-# Install Chromium, ChromeDriver, dan dependencies yang diperlukan
+# Install system dependencies (Chromium & Driver untuk Scraping)
 USER root
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
