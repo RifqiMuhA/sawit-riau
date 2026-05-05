@@ -16,5 +16,3 @@ airflow.db
 
 # Data & output
 *.parquet
-*.csv
-*.xlsx
