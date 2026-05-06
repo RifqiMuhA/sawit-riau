@@ -1,19 +1,17 @@
 """
-DAG 3 — Harga CPO Disbun: Download PDF + Ekstrak + Update → dim_periode.harga_cpo (DWH)
-======================================================================================
-Adaptasi dari etl_cpo_data.py (referensi teman, sudah teruji).
-
-Sumber  : PDF laporan tahunan Dinas Perkebunan Provinsi Riau
-          https://disbun.riau.go.id/rekap_harga_tbs
-Target  : dim_periode.harga_cpo di sawit_dwh (PostGIS)
-          harga_cpo adalah atribut periodik — disimpan langsung di dim_periode,
-          bukan fact table terpisah (fact_harga_cpo sudah dihapus dari schema).
-Jadwal  : 1 Januari tiap tahun (proses PDF tahun sebelumnya)
-          Trigger manual: conf {"tahun": 2023}
-
-Requirement: Container Airflow HARUS pakai custom image (Dockerfile)
-             yang sudah install chromium + chromedriver via apt-get.
-             Jalankan: docker-compose build && docker-compose up -d
+====================================================================================================
+DAG ID          : dag4_harga_cpo
+Deskripsi       : Scraping data harga CPO dari PDF laporan tahunan Dinas Perkebunan Provinsi Riau.
+Jadwal          : Tahunan (@yearly) atau Manual Trigger
+Sumber Data     : Website Disbun Riau (https://disbun.riau.go.id/rekap_harga_tbs)
+Target Data     : PostGIS (dim_periode.harga_cpo)
+====================================================================================================
+Alur Proses:
+1. Navigasi ke portal Disbun Riau menggunakan Selenium/Chromium.
+2. Download file PDF rekap harga TBS untuk tahun yang ditentukan.
+3. Ekstraksi tabel data harga CPO dari PDF menggunakan pdfplumber.
+4. Update kolom harga_cpo pada tabel dimensi periode di DWH.
+====================================================================================================
 """
 
 from __future__ import annotations

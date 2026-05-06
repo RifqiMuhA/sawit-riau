@@ -1,18 +1,17 @@
 """
-DAG 6 — ETL MongoDB Alert: log_alert_harian → fact_alert_operasional
-=====================================================================
-Sumber  : MongoDB `sawit_alerts.log_alert_harian` (12 perusahaan)
-Target  : fact_alert_operasional di sawit_dwh (PostGIS)
-Jadwal  : @monthly
-
-Catatan : Tabel sebelumnya bernama fact_rendemen (naming mismatch).
-          Isi tabel adalah agregasi alert operasional harian, bukan % rendemen CPO.
-
-Airflow Tasks:
-1. extract_mongodb             : Mengambil data mentah (2000+ docs) dari MongoDB
-2. transform_clean_data        : Membersihkan data dan format YYYY-MM
-3. transform_aggregate_metrics : Menghitung agregasi per bulan & perusahaan
-4. load_fact_alert_operasional : Upsert data agregasi ke PostGIS DWH
+====================================================================================================
+DAG ID          : dag5_alert_etl
+Deskripsi       : ETL Data Alert Operasional dari MongoDB ke Data Warehouse.
+Jadwal          : Bulanan (@monthly)
+Sumber Data     : MongoDB (sawit_alerts.log_alert_harian)
+Target Data     : PostGIS (fact_alert_operasional)
+====================================================================================================
+Alur Proses:
+1. Ekstraksi data mentah alert harian dari MongoDB.
+2. Pembersihan data dan ekstraksi periode (YYYY-MM).
+3. Agregasi metrik (total alert, status penanganan) per perusahaan dan periode.
+4. Load hasil agregasi ke tabel fakta fact_alert_operasional di DWH.
+====================================================================================================
 """
 
 from __future__ import annotations
@@ -40,7 +39,7 @@ MONGO_COL    = "log_alert_harian"
 # ─────────────────────────────────────────────────────────────
 
 def extract_mongodb(ti, **kwargs):
-    """EXTRACT: Mengambil seluruh data mentah dari MongoDB."""
+    """Mengambil data mentah dari MongoDB."""
     try:
         from pymongo import MongoClient
     except ImportError as e:
@@ -59,12 +58,11 @@ def extract_mongodb(ti, **kwargs):
     client.close()
     log.info("Berhasil ekstrak %d dokumen dari MongoDB.", len(raw_data))
     
-    # Push ke XCom
     ti.xcom_push(key="raw_data", value=raw_data)
 
 
 def transform_clean_data(ti, **kwargs):
-    """TRANSFORM 1: Membersihkan data dan mengekstrak periode (YYYY-MM)."""
+    """Pembersihan data dan ekstraksi periode (YYYY-MM)."""
     raw_data = ti.xcom_pull(task_ids="extract_mongodb", key="raw_data")
     
     cleaned_data = []
@@ -87,7 +85,7 @@ def transform_clean_data(ti, **kwargs):
 
 
 def transform_aggregate_metrics(ti, **kwargs):
-    """TRANSFORM 2: Menghitung total alert, status penanganan, & jenis terbanyak."""
+    """Menghitung total alert, status penanganan, & jenis terbanyak."""
     cleaned_data = ti.xcom_pull(task_ids="transform_clean_data", key="cleaned_data")
     
     agg: dict[tuple, dict] = {}
@@ -126,7 +124,7 @@ def transform_aggregate_metrics(ti, **kwargs):
 
 
 def load_fact_alert_operasional(ti, **kwargs):
-    """LOAD: Memasukkan data agregasi ke fact_alert_operasional di Data Warehouse."""
+    """Loading data agregasi ke fact_alert_operasional DWH."""
     transformed_rows = ti.xcom_pull(task_ids="transform_aggregate_metrics", key="aggregated_data")
     
     if not transformed_rows:
@@ -194,5 +192,4 @@ with DAG(
         python_callable = load_fact_alert_operasional,
     )
 
-    # Menentukan alur dependencies (Graph)
     t1 >> t2 >> t3 >> t4

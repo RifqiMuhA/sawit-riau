@@ -1,14 +1,17 @@
 """
-DAG 4 — Kalkulasi Analitik (Machine Learning & Business Logic)
-==============================================================
-Menjalankan perhitungan analitik menggunakan paradigma ETL murni 
-dengan Airflow TaskGroups untuk visualisasi Graph yang jelas.
-
-Dependency:
-  - DAG 1 (NDVI Extraction) → fact_ndvi harus sudah terisi (untuk status_kebun)
-  - DAG 2 (Produksi ETL)   → fact_produksi & fact_operasional harus sudah terisi
-  - DAG 3 (Harga CPO)      → dim_periode.harga_cpo harus sudah terisi (untuk hoarding)
-  DAG 4 menunggu ketiganya via PythonSensor sebelum memulai kalkulasi.
+====================================================================================================
+DAG ID          : dag6_analitik
+Deskripsi       : Kalkulasi analitik tingkat lanjut (K-Means Clustering, Hoarding Detection, NDVI Status).
+Jadwal          : Bulanan (@monthly)
+Sumber Data     : PostGIS (fact_produksi, fact_operasional, fact_ndvi, dim_periode)
+Target Data     : PostGIS (update kolom cluster_produksi, indikasi_timbun, status_kebun)
+====================================================================================================
+Alur Proses:
+1. Menunggu penyelesaian DAG hulu (NDVI, Produksi, Harga CPO) menggunakan PythonSensors.
+2. Segmentasi produktivitas perusahaan menggunakan algoritma K-Means (3 cluster).
+3. Deteksi indikasi penimbunan stok (hoarding) berdasarkan anomali stok vs harga & penjualan.
+4. Klasifikasi kondisi kebun (kritis/normal) berdasarkan distribusi persentil NDVI.
+====================================================================================================
 """
 
 from __future__ import annotations
@@ -30,7 +33,7 @@ from sklearn.cluster import KMeans
 log = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────────────────────────
-# SENSOR HELPER — Sama seperti DAG 7 & DAG 8
+# SENSOR HELPERS
 # ─────────────────────────────────────────────────────────────
 
 SENSOR_TIMEOUT_SECONDS = 60 * 60 * 6  # 6 jam
@@ -40,7 +43,7 @@ def _check_latest_run(external_dag_id: str, **kwargs) -> bool:
     """
     Mengecek apakah eksekusi terakhir dari sebuah DAG berstatus SUCCESS.
     Menggunakan pendekatan "latest run" agar tidak terikat pada execution_date
-    yang sama persis (fleksibel untuk trigger manual).
+    yang sama persis.
     """
     runs = DagRun.find(dag_id=external_dag_id)
     if not runs:
@@ -60,20 +63,20 @@ def _on_sensor_timeout(context):
     log.error("[ALERT] Sensor %s timeout: %s tidak selesai dalam batas waktu.", task_id, dag_id)
 
 # ─────────────────────────────────────────────────────────────
-# TUJUAN 2: K-MEANS PRODUKTIVITAS
+# K-MEANS PRODUKTIVITAS
 # ─────────────────────────────────────────────────────────────
 
 def extract_produksi(ti, **kwargs):
     dwh = PostgresHook(postgres_conn_id="postgis_dwh")
     query = "SELECT perusahaan_id, periode, produktivitas FROM fact_produksi WHERE produktivitas IS NOT NULL"
     df = dwh.get_pandas_df(query)
-    # Cast periode back to string in case it's parsed as something else
+    # Pastikan periode dalam format string
     df['periode'] = df['periode'].astype(str)
     
-    # Airflow XCom requires JSON-serializable types, so we convert to records
+    # XCom butuh format JSON-serializable, jadi kita ubah ke records (list of dict)
     data = df.to_dict('records')
     ti.xcom_push(key="raw_produksi", value=data)
-    log.info("Extracted %d rows for K-Means.", len(data))
+    log.info("Berhasil ekstrak %d baris data untuk K-Means.", len(data))
 
 def transform_kmeans(ti, **kwargs):
     raw_data = ti.xcom_pull(task_ids="tujuan_2_kmeans.extract_produksi", key="raw_produksi")
@@ -130,7 +133,7 @@ def load_clusters(ti, **kwargs):
     log.info("Loaded %d cluster updates to DWH.", len(updates))
 
 # ─────────────────────────────────────────────────────────────
-# TUJUAN 3: DETEKSI PENIMBUNAN (HOARDING)
+# DETEKSI PENIMBUNAN (HOARDING)
 # ─────────────────────────────────────────────────────────────
 
 def extract_operasional(ti, **kwargs):
@@ -143,11 +146,11 @@ def extract_operasional(ti, **kwargs):
     """
     df = dwh.get_pandas_df(query)
     df['periode'] = df['periode'].astype(str)
-    # Mengganti nilai NaN menjadi None agar bisa di-serialize ke JSON XCom
+    # Ganti NaN jadi None agar bisa masuk XCom (JSON-serializable)
     df = df.replace({np.nan: None})
     data = df.to_dict('records')
     ti.xcom_push(key="raw_operasional", value=data)
-    log.info("Extracted %d rows for Hoarding detection.", len(data))
+    log.info("Berhasil ekstrak %d baris data untuk deteksi penimbunan.", len(data))
 
 def transform_hoarding(ti, **kwargs):
     raw_data = ti.xcom_pull(task_ids="tujuan_3_penimbunan.extract_operasional", key="raw_operasional")
@@ -158,7 +161,7 @@ def transform_hoarding(ti, **kwargs):
     # Pastikan data diurutkan berdasarkan perusahaan dan periode
     df = df.sort_values(by=["perusahaan_id", "periode"]).reset_index(drop=True)
     
-    # Shift stok akhir (bulan lalu) per perusahaan
+    # Geser data stok akhir (bulan lalu) per perusahaan
     df['prev_stok'] = df.groupby('perusahaan_id')['stok_akhir_ton'].shift(1)
     
     # Rata-rata historis penjualan (3 bulan ke belakang, tidak termasuk bulan ini)
@@ -208,7 +211,7 @@ def load_hoarding(ti, **kwargs):
     log.info("Loaded %d hoarding flags to DWH.", len(updates))
 
 # ─────────────────────────────────────────────────────────────
-# TUJUAN 1: STATUS KEBUN KRITIS (NDVI)
+# STATUS KEBUN (NDVI)
 # ─────────────────────────────────────────────────────────────
 
 def extract_ndvi(ti, **kwargs):
@@ -219,7 +222,7 @@ def extract_ndvi(ti, **kwargs):
     
     data = df.to_dict('records')
     ti.xcom_push(key="raw_ndvi", value=data)
-    log.info("Extracted %d rows for NDVI.", len(data))
+    log.info("Berhasil ekstrak %d baris data NDVI.", len(data))
 
 def transform_ndvi(ti, **kwargs):
     raw_data = ti.xcom_pull(task_ids="tujuan_1_status_kebun.extract_ndvi", key="raw_ndvi")
@@ -287,7 +290,7 @@ with DAG(
     # UPSTREAM SENSORS — Tunggu pipeline data selesai
     # ─────────────────────────────────────────────────────────
 
-    # fact_ndvi diisi DAG 1 (diperlukan oleh tg_ndvi → status_kebun)
+    # Data NDVI diisi oleh DAG 1 (dibutuhkan untuk status_kebun)
     wait_for_dag1 = PythonSensor(
         task_id             = "wait_for_dag1_ndvi",
         python_callable     = _check_latest_run,
@@ -299,7 +302,7 @@ with DAG(
         on_failure_callback = _on_sensor_timeout,
     )
 
-    # fact_produksi & fact_operasional diisi DAG 2
+    # Data Produksi & Operasional diisi oleh DAG 2
     wait_for_dag2 = PythonSensor(
         task_id             = "wait_for_dag2_produksi",
         python_callable     = _check_latest_run,
@@ -311,7 +314,7 @@ with DAG(
         on_failure_callback = _on_sensor_timeout,
     )
 
-    # dim_periode.harga_cpo diisi DAG 4 (diperlukan oleh tg_timbun → hoarding detection)
+    # Data Harga CPO diisi oleh DAG 4 (dibutuhkan untuk deteksi penimbunan)
     wait_for_dag4 = PythonSensor(
         task_id             = "wait_for_dag4_harga_cpo",
         python_callable     = _check_latest_run,

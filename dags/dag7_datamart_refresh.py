@@ -1,14 +1,17 @@
 """
-DAG 7 — Datamart Refresh
-========================
-Membuat tabel denormalisasi siap saji (datamart) dari tabel-tabel Fact dan Dimension.
-Tabel-tabel ini akan berada di schema `datamart` dan digunakan langsung oleh Dashboard.
-
-Datamarts:
-1. dm_kondisi_kebun (Tujuan 1)
-2. dm_gap_produksi (Tujuan 2)
-3. dm_deteksi_penimbunan (Tujuan 3)
-4. dm_realisasi_panen (Tujuan 4)
+====================================================================================================
+DAG ID          : dag7_datamart_refresh
+Deskripsi       : Refresh tabel denormalisasi (Materialized Views) di skema datamart.
+Jadwal          : Bulanan (@monthly)
+Sumber Data     : PostGIS (Tabel Fact & Dimension)
+Target Data     : PostGIS (datamart.dm_kondisi_kebun, dm_gap_produksi, dm_deteksi_penimbunan, dm_realisasi_panen)
+====================================================================================================
+Alur Proses:
+1. Menunggu penyelesaian DAG analitik dan ETL hulu.
+2. Inisialisasi skema datamart jika belum ada.
+3. Refresh Materialized Views secara atomik (swap view lama dengan yang baru).
+4. Pembuatan index pada tabel datamart untuk optimasi query dashboard.
+====================================================================================================
 """
 
 from __future__ import annotations
@@ -22,14 +25,9 @@ from airflow.models.dagrun import DagRun
 from airflow.utils.state import DagRunState
 
 def _check_latest_run(external_dag_id: str, **kwargs) -> bool:
-    """
-    Fungsi kustom untuk mengecek apakah eksekusi terakhir dari sebuah DAG berstatus SUCCESS.
-    Ini menghilangkan masalah perbedaan mikrodetik (execution_date) saat trigger manual.
-    """
     runs = DagRun.find(dag_id=external_dag_id)
     if not runs:
         return False
-    # Urutkan berdasarkan waktu eksekusi paling akhir
     latest_run = sorted(runs, key=lambda x: x.execution_date, reverse=True)[0]
     return latest_run.state == DagRunState.SUCCESS
 

@@ -1,18 +1,17 @@
 """
-DAG 5 — ETL Panen: OLTP → DWH (fact_panen)
-============================================
-Sumber  : 4 tipe tabel panen dari 12 OLTP database
-  A (MySQL) : jadwal_panen   → periode CHAR(7), satuan TON
-  B (MySQL) : rencana_panen  → periode (bulan CHAR(7)), satuan TON
-  C (PgSQL) : target_panen   → tgl_laporan DATE → YYYY-MM, satuan TON
-  D (PgSQL) : realisasi_panen → tahun+bulan terpisah → YYYY-MM, satuan TON
-Target  : fact_panen di sawit_dwh (PostGIS)
-Jadwal  : @monthly (setelah DAG 2 selesai, agar dim_kebun sudah terisi)
-
-Airflow Tasks:
-1. extract_mysql_a, extract_mysql_b, extract_pg_c, extract_pg_d (Paralel)
-2. transform_panen_data : Menggabungkan dan menormalisasi seluruh data mentah
-3. load_fact_panen      : Upsert ke PostGIS DWH
+====================================================================================================
+DAG ID          : dag3_panen_etl
+Deskripsi       : ETL Data Realisasi vs Target Panen dari 12 OLTP (MySQL/PG).
+Jadwal          : Bulanan (@monthly)
+Sumber Data     : MySQL (Cluster A & B), PostgreSQL (Cluster C & D)
+Target Data     : PostGIS (fact_panen, dim_status_panen)
+====================================================================================================
+Alur Proses:
+1. Ekstraksi data panen dari berbagai skema database OLTP secara paralel.
+2. Konsolidasi dan normalisasi data (konversi satuan, format periode).
+3. Kalkulasi gap panen dan penentuan status panen (tercapai/tidak).
+4. Load data ke tabel fakta fact_panen di DWH.
+====================================================================================================
 """
 
 from __future__ import annotations
@@ -93,7 +92,7 @@ def extract_mysql_a(ti, **kwargs):
                 "status": r["status"]
             })
     ti.xcom_push(key="raw_a", value=raw_data)
-    log.info("Extracted %d rows from MySQL A", len(raw_data))
+    log.info("Berhasil mengekstrak %d baris dari MySQL Cluster A", len(raw_data))
 
 def extract_mysql_b(ti, **kwargs):
     mysql = MySqlHook(mysql_conn_id="mysql_oltp")
@@ -117,7 +116,7 @@ def extract_mysql_b(ti, **kwargs):
                 "status": r["status_panen"]
             })
     ti.xcom_push(key="raw_b", value=raw_data)
-    log.info("Extracted %d rows from MySQL B", len(raw_data))
+    log.info("Ekstrak %d baris dari MySQL Cluster B", len(raw_data))
 
 def extract_pg_c(ti, **kwargs):
     oltp_pg = PostgresHook(postgres_conn_id="postgres_oltp")
@@ -142,7 +141,7 @@ def extract_pg_c(ti, **kwargs):
                 "status": r["status"]
             })
     ti.xcom_push(key="raw_c", value=raw_data)
-    log.info("Extracted %d rows from Postgres C", len(raw_data))
+    log.info("Ekstrak %d baris dari Postgres Cluster C", len(raw_data))
 
 def extract_pg_d(ti, **kwargs):
     oltp_pg = PostgresHook(postgres_conn_id="postgres_oltp")
@@ -167,7 +166,7 @@ def extract_pg_d(ti, **kwargs):
                 "status": r["status_panen"]
             })
     ti.xcom_push(key="raw_d", value=raw_data)
-    log.info("Extracted %d rows from Postgres D", len(raw_data))
+    log.info("Ekstrak %d baris dari Postgres Cluster D", len(raw_data))
 
 # ─────────────────────────────────────────────────────────────
 # TASK FUNCTIONS (Transform & Load)

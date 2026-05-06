@@ -1,8 +1,17 @@
 """
-DAG 8 — DWH Backup & Archiving (S3/MinIO)
-=========================================
-Melakukan pencadangan (backup) seluruh isi database Data Warehouse (PostGIS)
-menjadi file terkompresi, mengunggahnya ke MinIO, dan mengelola rotasi usia file.
+====================================================================================================
+DAG ID          : dag8_minio_backup
+Deskripsi       : Pencadangan (Backup) database Data Warehouse PostGIS ke MinIO.
+Jadwal          : Bulanan (@monthly)
+Sumber Data     : PostGIS (sawit_dwh)
+Target Data     : MinIO Bucket (dwh-backups)
+====================================================================================================
+Alur Proses:
+1. Menunggu penyelesaian DAG Datamart Refresh.
+2. Dump seluruh database PostGIS ke file terkompresi (.sql.gz).
+3. Unggah file backup ke storage MinIO.
+4. Hapus file lokal sementara dan lakukan rotasi backup di MinIO (> 6 bulan).
+====================================================================================================
 """
 
 from __future__ import annotations
@@ -69,7 +78,7 @@ def _upload_to_minio(**context):
         
     print(f"Mengunggah {local_file} ke s3://{BUCKET_NAME}/{s3_key} ...")
     s3.upload_file(local_file, BUCKET_NAME, s3_key)
-    print("Unggahan selesai.")
+    print("Upload selesai.")
 
 def _cleanup_and_rotate(**context):
     """Menghapus file sementara dan membuang backup berusia lebih dari 6 bulan di MinIO."""
@@ -119,7 +128,6 @@ with DAG(
     tags        = ["backup"],
 ) as dag:
 
-    # 1. SENSOR DEPENDENCY (Opsional, di-set untuk menunggu DAG 7 Datamart selesai)
     wait_for_dag7 = PythonSensor(
         task_id          = "wait_for_dag7",
         python_callable  = _check_latest_run,
@@ -131,13 +139,11 @@ with DAG(
         on_failure_callback = _on_sensor_timeout,
     )
 
-    # 2. EKSEKUSI PGDUMP
-    # pg_dump akan dipipe ke gzip. Autentikasi diselipkan via environment PGPASSWORD
     dump_command = (
         "set -o pipefail; pg_dump -h {{ params.host }} -U {{ params.user }} --format=plain {{ params.db }} "
         "| gzip > /tmp/backup_dwh_{{ logical_date.strftime('%Y%m%d_%H%M%S') }}.sql.gz"
     )
-    
+
     pg_dump_task = BashOperator(
         task_id="pg_dump_dwh",
         bash_command=dump_command,
@@ -149,13 +155,11 @@ with DAG(
         env={"PGPASSWORD": DWH_PASSWORD, "PATH": os.environ.get("PATH", "/usr/bin:/bin")},
     )
 
-    # 3. UPLOAD KE MINIO
     upload_to_minio_task = PythonOperator(
         task_id="upload_to_minio",
         python_callable=_upload_to_minio,
     )
 
-    # 4. ROTASI & CLEANUP
     cleanup_and_rotate_task = PythonOperator(
         task_id="cleanup_and_rotate",
         python_callable=_cleanup_and_rotate,

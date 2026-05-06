@@ -1,6 +1,17 @@
 """
-DAG 1 — Ekstraksi NDVI GEE + KNN Imputation
-==================================================================
+====================================================================================================
+DAG ID          : dag1_ndvi_extraction
+Deskripsi       : Ekstraksi nilai NDVI dari citra satelit Google Earth Engine (GEE) dan imputasi KNN.
+Jadwal          : Bulanan (Tgl 1)
+Sumber Data     : Google Earth Engine (Sentinel-2), PostGIS (dim_kabupaten)
+Target Data     : PostGIS (fact_ndvi, dim_periode)
+====================================================================================================
+Alur Proses:
+1. Inisialisasi GEE dan ambil geometri wilayah dari DWH.
+2. Ekstraksi median NDVI per wilayah menggunakan citra Sentinel-2.
+3. Imputasi nilai NDVI yang kosong (akibat awan/masking) menggunakan KNN.
+4. Load data hasil ekstraksi dan imputasi ke tabel fakta DWH.
+====================================================================================================
 """
 
 from __future__ import annotations
@@ -21,7 +32,7 @@ from sklearn.impute import KNNImputer
 log = logging.getLogger(__name__)
 
 def task_extract_gee(**context) -> list[dict]:
-    # 1. Inisialisasi GEE
+    # Inisialisasi
     try:
         ee.Initialize()
         log.info("GEE Berhasil diinisialisasi.")
@@ -35,7 +46,7 @@ def task_extract_gee(**context) -> list[dict]:
 
     dwh_hook = PostgresHook(postgres_conn_id="postgis_dwh")
     
-    # 2. Ambil Geometri + Centroid untuk fitur spasial KNN
+    # Ambil geometri dan centroid untuk fitur spasial KNN
     cur = dwh_hook.get_cursor()
     cur.execute("""
         SELECT kode_wilayah, nama_kabupaten, ST_AsGeoJSON(geometry),
@@ -44,7 +55,7 @@ def task_extract_gee(**context) -> list[dict]:
     """)
     rows = cur.fetchall()
     
-    # 3. Ekstraksi GEE
+    # Proses ekstraksi data dari GEE
     s2 = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")\
         .filterDate(start_date, end_date)\
         .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 30))
@@ -94,7 +105,6 @@ def task_extract_gee(**context) -> list[dict]:
                 "lon": lon, "lat": lat, "ndvi_mean": None, "pixel_count": 0
             })
 
-    # Return for XCom
     return results
 
 def task_transform_impute(**context) -> list[dict]:
@@ -103,7 +113,7 @@ def task_transform_impute(**context) -> list[dict]:
     
     df = pd.DataFrame(extracted_data)
     
-    # 4. Tahap KNN Imputation (Hanya untuk yang masih Null)
+    # Isi data yang kosong (awan/masking) pakai KNN Imputer
     if df['ndvi_mean'].isnull().any():
         if df['ndvi_mean'].notnull().any(): 
             log.info("Menjalankan KNN Imputer untuk mengisi kekosongan...")
@@ -118,7 +128,6 @@ def task_transform_impute(**context) -> list[dict]:
         else:
             log.error("Semua wilayah kosong. KNN tidak dapat dijalankan.")
 
-    # Return for XCom load
     return df.to_dict('records')
 
 def task_load_dwh(**context) -> None:
@@ -128,20 +137,18 @@ def task_load_dwh(**context) -> None:
     exec_date: datetime = context["logical_date"]
     periode = exec_date.strftime("%Y-%m")
     
-    # 5. Load ke DWH
+    # Simpan hasil akhir ke DWH
     dwh_hook = PostgresHook(postgres_conn_id="postgis_dwh")
     conn = dwh_hook.get_conn()
     db_cur = conn.cursor()
     
     for r in transformed_data:
         if r['ndvi_mean'] is not None:
-            # Upsert Dim Periode
             db_cur.execute("""
                 INSERT INTO dim_periode (periode, tahun, bulan, kuartal) 
                 VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING
             """, (periode, exec_date.year, exec_date.month, (exec_date.month-1)//3 + 1))
             
-            # Upsert Fact NDVI (memasukkan ndvi_mean dan pixel_count)
             db_cur.execute("""
                 INSERT INTO fact_ndvi (kode_wilayah, periode, ndvi_mean, pixel_count)
                 VALUES (%s, %s, %s, %s)

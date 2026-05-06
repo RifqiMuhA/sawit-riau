@@ -1,18 +1,17 @@
 """
-DAG 2 — ETL Produksi & Operasional: OLTP + Excel → DWH
-========================================================
-Sumber  : 6 MySQL DB (A & B) + 6 PostgreSQL schema (C & D) + 12 Excel PKS
-Target  : fact_produksi + fact_operasional di sawit_dwh (PostGIS)
-Jadwal  : @monthly (atau manual trigger)
-
-Transformasi kritis per tipe:
-  A (MySQL) : periode Jan-2023 → 2023-01 | satuan TON | deduplikasi v1/v2
-  B (MySQL) : periode 01/01/2023 → 2023-01 | KG ÷ 1000 → TON | forward-fill NULL luas
-  C (PG)    : DATE → YYYY-MM | filter produksi > 0 (nilai 0 = missing)
-  D (PG)    : tahun+bulan terpisah → YYYY-MM | DISTINCT ON deduplikasi | NULL stok → flag
-  Excel A   : Nama_Perusahaan, Kabupaten, Periode (Jan-2023), Produksi_TBS_Ton, Luas_Panen_Ha
-  Excel B   : NAMA_PKS, KAB, TANGGAL (01/01/2023), PRODUKSI_KG÷1000, LUAS_HA
-  Excel C/D : header baris ke-3 | perusahaan, kabupaten, periode_lap(YYYY-MM), tbs_ton, ha_aktif
+====================================================================================================
+DAG ID          : dag2_produksi_etl
+Deskripsi       : ETL Data Produksi dan Operasional dari 12 OLTP (MySQL/PG) dan 12 Excel PKS.
+Jadwal          : Bulanan (@monthly)
+Sumber Data     : MySQL (Cluster A & B), PostgreSQL (Cluster C & D), Excel PKS
+Target Data     : PostGIS (fact_produksi, fact_operasional, dim_kebun, dim_karyawan)
+====================================================================================================
+Alur Proses:
+1. Ekstraksi dan transformasi data produksi dari 4 cluster database OLTP secara paralel.
+2. Ekstraksi data pelengkap dari file Excel PKS yang diunggah ke storage.
+3. Sinkronisasi data master kebun (dim_kebun) dari seluruh database operasional.
+4. Update data karyawan dan hitung headcount tenaga kerja per perusahaan.
+====================================================================================================
 """
 
 from __future__ import annotations
@@ -174,7 +173,7 @@ def etl_mysql_a(**_):
     prod_rows, ops_rows = [], []
 
     for db in MYSQL_A_DATABASES:
-        log.info("MySQL A — processing %s", db)
+        log.info("MySQL Cluster A — proses database %s", db)
         df = mysql.get_pandas_df(
             f"""
             SELECT perusahaan_id, periode,
@@ -203,7 +202,7 @@ def etl_mysql_b(**_):
     prod_rows, ops_rows = [], []
 
     for db in MYSQL_B_DATABASES:
-        log.info("MySQL B — processing %s", db)
+        log.info("MySQL Cluster B — proses database %s", db)
         df = mysql.get_pandas_df(
             f"""
             SELECT id_pks as perusahaan_id, bulan as periode,
@@ -216,7 +215,7 @@ def etl_mysql_b(**_):
             """,
             parameters=None
         )
-        # Forward-fill NULL luas_panen (pandas 2.x compatible)
+        # Isi nilai kosong pada luas_panen dengan nilai sebelumnya (forward-fill)
         df["luas_panen_ha"] = df["luas_panen_ha"].ffill()
 
         for _, r in df.iterrows():
@@ -237,7 +236,7 @@ def etl_pg_c(**_):
     prod_rows, ops_rows = [], []
 
     for schema in PG_C_SCHEMAS:
-        log.info("PG C — processing %s", schema)
+        log.info("Postgres Cluster C — proses skema %s", schema)
         df = oltp_pg.get_pandas_df(
             f"""
             SET search_path TO "{schema}";
@@ -268,7 +267,7 @@ def etl_pg_d(**_):
     prod_rows, ops_rows = [], []
 
     for schema in PG_D_SCHEMAS:
-        log.info("PG D — processing %s", schema)
+        log.info("Postgres Cluster D — proses skema %s", schema)
         df = oltp_pg.get_pandas_df(
             f"""
             SELECT DISTINCT ON (perusahaan_id, tahun, bulan)
@@ -487,7 +486,7 @@ def load_dim_karyawan(**_):
 
     # ── Tipe C: karyawan_c ───────────────────────────────────────
     # Kolom aktual: id (integer), kode_perusahaan, nama, jabatan, aktif (boolean)
-    # id di-prefix schema untuk menghindari collision antar schema
+    # Prefix ID dengan nama skema agar tidak bentrok antar wilayah
     count_c = 0
     for schema in PG_C_SCHEMAS:
         df = oltp_pg.get_pandas_df(
@@ -544,7 +543,7 @@ def load_dim_karyawan(**_):
     log.info("dim_karyawan — total %d karyawan di-upsert ke DWH", len(rows))
 
     # ── Hitung headcount & upsert fact_tenaga_kerja ──────────────
-    # Snapshot per periode bulan ini (OLTP tidak menyimpan histori headcount)
+    # Ambil data headcount periode saat ini (snapshot)
     periode_now = _dt.date.today().strftime("%Y-%m")
     df_all      = pd.DataFrame(rows)
 
@@ -604,11 +603,11 @@ def etl_excel(**_):
     prod_rows = []
 
     excel_files = sorted(glob.glob(os.path.join(EXCEL_DIR, "Laporan_Excel_PKS-*.xlsx")))
-    log.info("Found %d Excel files", len(excel_files))
+    log.info("Ketemu %d file Excel", len(excel_files))
 
     for fpath in excel_files:
         fname = os.path.basename(fpath)
-        log.info("Processing %s", fname)
+        log.info("Lagi proses file: %s", fname)
 
         # Tentukan tipe dari nama file
         if "-A-" in fname:
@@ -654,7 +653,7 @@ def etl_excel(**_):
             raise
 
     n_p = upsert_fact_produksi(dwh, pd.DataFrame(prod_rows))
-    log.info("Excel — loaded %d produksi rows", n_p)
+    log.info("Excel — Berhasil simpan %d baris data produksi", n_p)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -714,9 +713,4 @@ with DAG(
         python_callable = load_dim_karyawan,
     )
 
-    # Alur dependency:
-    # 1. Parallel DB extraction (semua 12 OLTP serentak)
-    # 2. Excel PKS (setelah DB selesai, untuk data pelengkap)
-    # 3. Load dim_kebun (basis untuk fact_panen di DAG 5)
-    # 4. Load dim_karyawan + fact_tenaga_kerja (paralel setelah dim_kebun siap)
     ekstraksi_db_group >> t_excel >> t_load_dwh >> t_karyawan
